@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import OrganizerInterface from './components/Organizer/OrganizerInterface';
-import AttendeeInterface from './components/Attendee/AttendeeInterface';
+import OrganizerInterface from '../my-app/src/components/Organizer/OrganizerInterface';
+import AttendeeInterface from '../my-app/src/components/Attendee/AttendeeInterface';
 
 function App() {
   return (
