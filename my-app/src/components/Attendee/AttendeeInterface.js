@@ -1,36 +1,31 @@
 import React from 'react';
-import TravelSearch from './TravelSearch';
-import LodgingSearch from './LodgingSearch';
+import RSVP from './RSVP';
+import GiftIdeas from './GiftIdeas';
 import Sharing from './Sharing';
+import './AttendeeInterface.css'; // Import the CSS file for styling
 
 const AttendeeInterface = () => {
   return (
     <div className="attendee-interface">
       <header>
-        <h1>Event Attendee</h1>
-        <nav>
-          <a href="#travel">Travel Search</a>
-          <a href="#lodging">Lodging Search</a>
-          <a href="#sharing">Sharing</a>
-        </nav>
+        <h1>Birthday Party Planner - Attendee Interface</h1>
       </header>
       <main>
-        <section id="travel">
-          <TravelSearch />
+        <section id="rsvp">
+          <RSVP />
         </section>
-        <section id="lodging">
-          <LodgingSearch />
+        <section id="gift-ideas">
+          <GiftIdeas />
         </section>
         <section id="sharing">
           <Sharing />
         </section>
       </main>
       <footer>
-        <p>© 2024 Event Attendee</p>
+        <p>© 2024 Birthday Party Planner</p>
       </footer>
     </div>
   );
 };
 
 export default AttendeeInterface;
-  

@@ -1,0 +1,18 @@
+/* GiftIdeas.css */
+
+.gift-ideas {
+    margin: 1rem 0;
+    padding: 1rem;
+    background: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .gift-ideas h2 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .gift-list {
+    /* Styles for the list of gift ideas */
+  }
+  

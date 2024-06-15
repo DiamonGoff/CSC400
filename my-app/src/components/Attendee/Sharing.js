@@ -3,9 +3,10 @@ import React from 'react';
 const Sharing = () => {
   return (
     <div className="sharing">
-      <h2>Share Your Travel Plans</h2>
+      <h2>Social Interaction</h2>
       <div className="social-media-buttons">
-        <button>Share on Facebook</button>
+        <button>Share on Facebook</button> 
+        < br/>< br/>
         <button>Share on Twitter</button>
       </div>
       <div className="comments-section">
