@@ -3,6 +3,8 @@ import React from 'react';
 const RSVP = () => {
   return (
     <div className="rsvp">
+      <br />
+      <br />
       <h2>RSVP</h2>
       <form>
         <input type="text" placeholder="Your Name" />

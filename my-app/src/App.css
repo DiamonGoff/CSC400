@@ -52,6 +52,67 @@ body {
 main {
   padding: 1rem;
   margin-top: 70px; /* Adjust this value to ensure the content is not hidden behind the fixed header */
+  text-align: center; /* Center all text in main content */
+}
+
+/* Welcome Section */
+.welcome-section {
+  background: white;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center; /* Center text in welcome section */
+}
+
+.welcome-section .btn {
+  margin: 10px;
+  background-color: #5A20CB;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.welcome-section .btn:hover {
+  background-color: #4A10BB;
+}
+
+/* Image Section */
+.image-section {
+  text-align: center; /* Center text in image section */
+  margin: 20px 0;
+}
+
+.image-section .event-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Features Section */
+.features-section {
+  background: white;
+  padding: 20px;
+  margin-top: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center; /* Center text in features section */
+}
+
+.features-section h2 {
+  font-size: 2rem;
+  color: #5A20CB;
+  margin-bottom: 10px;
+}
+
+.features-section p {
+  font-size: 1.2rem;
+  color: #666;
+  margin-bottom: 20px;
 }
 
 /* Footer styles */
@@ -63,48 +124,4 @@ footer {
   position: fixed;
   width: 100%;
   bottom: 0;
-}
-
-/* Form styles */
-form {
-  margin: 1rem 0;
-}
-
-form input, form button {
-  margin: 0.5rem 0;
-  padding: 0.5rem;
-  width: 100%;
-}
-
-form button {
-  background: #4CAF50;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-
-form button:hover {
-  background: #45a049;
-}
-
-/* Section styles */
-section {
-  margin: 1rem 0;
-  padding: 1rem;
-  background: white;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-/* Add additional classes for specific sections if needed */
-.venue-search, .venue-management, .travel-search, .lodging-search, .sharing {
-  margin: 1rem 0;
-}
-
-/* Utility classes */
-.text-center {
-  text-align: center;
-}
-
-.hidden {
-  display: none;
 }
