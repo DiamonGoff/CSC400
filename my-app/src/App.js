@@ -33,9 +33,30 @@ function App() {
                   </div>
                 </section>
                 <section className="image-section">
-                  <img src="Mabook2.png" alt="Event Image" className="event-image" />
+                  <img src="Mabook2.png" alt="Event" className="event-image" />
                 </section>
                 <FeaturesSection />
+                <section id="about" className="about-section">
+                  <h2>About EventConnect</h2>
+                  <p>EventConnect is designed to streamline planning and attending birthday parties. Organizers can search and book venues, manage guest lists, and send invitations. Attendees can find travel options and interact via social media.</p>
+                </section>
+                <section className="testimonials-section">
+                  <h2>What Our Users Say</h2>
+                  <div className="testimonial">
+                    <p>"EventConnect made planning my birthday party a breeze. Highly recommended!"</p>
+                    <span>- User A</span>
+                  </div>
+                  <div className="testimonial">
+                    <p>"The best app for event management. Easy to use and very efficient."</p>
+                    <span>- User B</span>
+                  </div>
+                </section>
+                <section className="cta-section">
+                  <h2>Get Started with EventConnect</h2>
+                  <p>Sign up today and start planning your perfect event!</p>
+                  <Link to="/signup" className="btn btn-primary">Sign Up</Link>
+                  <Link to="/login" className="btn btn-secondary">Log In</Link>
+                </section>
               </main>
             </>
           } />
