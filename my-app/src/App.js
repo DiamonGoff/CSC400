@@ -7,6 +7,7 @@ import Header from './components/Header';
 import HeroSection from './components/HeroSection';
 import FeaturesSection from './components/FeaturesSection';
 import Footer from './components/Footer';
+import Register from './components/Register';
 import './App.css'; // Import the CSS file for styling
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/organizer" element={<OrganizerInterface />} />
           <Route path="/attendee" element={<AttendeeInterface />} />
+          <Route path="/register" element={<Register />} /> {/* Route for Register component */}
           <Route path="/" element={
             <>
               <HeroSection />
@@ -29,6 +31,8 @@ function App() {
                     <nav>
                       <Link to="/organizer" className="btn">Organizer Interface</Link>
                       <Link to="/attendee" className="btn">Attendee Interface</Link>
+                    
+                      <Link to="/register" className="btn">Sign Up</Link> {/* Add Register link */}
                     </nav>
                   </div>
                 </section>
