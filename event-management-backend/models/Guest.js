@@ -7,7 +7,8 @@ const guestSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: true
+    required: true,
+    unique: true
   },
   rsvp: {
     type: Boolean,

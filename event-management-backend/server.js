@@ -1,12 +1,12 @@
-// server.js
+require('dotenv').config(); // Add this line at the top of the file
+
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const eventRoutes = require('./routes/event');
-const guestRoutes = require('./routes/guest'); // Import the guest routes
 
 const app = express();
-const port = 3000;
+const port = 3001; // Use a different port if 3000 is in use by the frontend
 
 // Middleware
 app.use(bodyParser.json());
@@ -19,9 +19,8 @@ mongoose.connect('mongodb://localhost:27017/event-management', {
 .then(() => console.log('MongoDB connected'))
 .catch(err => console.log(err));
 
-// Use the routes
+// Use the event routes
 app.use('/', eventRoutes);
-app.use('/', guestRoutes); // Use the guest routes
 
 // Start the server
 app.listen(port, () => {
