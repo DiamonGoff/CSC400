@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './OrganizerInterface.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarPlus, faCalendarAlt, faSearch, faTasks } from '@fortawesome/free-solid-svg-icons';
@@ -6,53 +6,43 @@ import axios from 'axios';
 import Map from './Map';
 
 function OrganizerInterface() {
-  const [events, setEvents] = useState([]);
-  const [newEvent, setNewEvent] = useState({
-    name: '',
-    date: '',
-    time: '',
-    location: '',
-    description: '',
-  });
+  const [eventName, setEventName] = useState('');
+  const [eventDate, setEventDate] = useState('');
+  const [eventTime, setEventTime] = useState('');
+  const [eventLocation, setEventLocation] = useState('');
+  const [eventDescription, setEventDescription] = useState('');
 
-  useEffect(() => {
-    // Fetch events from the backend
-    const fetchEvents = async () => {
-      try {
-        const response = await axios.get('http://localhost:3000/events');
-        setEvents(response.data);
-      } catch (error) {
-        console.error('Error fetching events:', error);
-      }
-    };
-
-    fetchEvents();
-  }, []);
-
-  const handleChange = (e) => {
-    setNewEvent({ ...newEvent, [e.target.name]: e.target.value });
-  };
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
 
   const handleCreateEvent = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:3000/events', newEvent);
-      // Refresh events after creating a new one
-      const response = await axios.get('http://localhost:3000/events');
-      setEvents(response.data);
+      const response = await axios.post('http://localhost:3001/events', {
+        name: eventName,
+        date: eventDate,
+        time: eventTime,
+        location: eventLocation,
+        description: eventDescription
+      });
+      alert('Event created successfully');
+      console.log(response.data);
     } catch (error) {
-      console.error('Error creating event:', error);
+      console.error('There was an error creating the event!', error);
     }
   };
 
-  const handleDeleteEvent = async (eventId) => {
+  const handleSearch = async (e) => {
+    e.preventDefault();
     try {
-      await axios.delete(`http://localhost:3000/events/${eventId}`);
-      // Refresh events after deletion
-      const response = await axios.get('http://localhost:3000/events');
-      setEvents(response.data);
+      const response = await axios.get('http://localhost:3001/places', {
+        params: {
+          query: searchQuery
+        }
+      });
+      setSearchResults(response.data);
     } catch (error) {
-      console.error('Error deleting event:', error);
+      console.error('There was an error searching for places!', error);
     }
   };
 
@@ -66,36 +56,78 @@ function OrganizerInterface() {
           <br />
           <h2><FontAwesomeIcon icon={faCalendarPlus} /> Create New Event</h2>
           <form onSubmit={handleCreateEvent}>
-            <input type="text" name="name" placeholder="Event Name" onChange={handleChange} />
-            <input type="date" name="date" placeholder="Date" onChange={handleChange} />
-            <input type="time" name="time" placeholder="Time" onChange={handleChange} />
-            <input type="text" name="location" placeholder="Location" onChange={handleChange} />
-            <textarea name="description" placeholder="Description" onChange={handleChange}></textarea>
+            <input 
+              type="text" 
+              placeholder="Event Name" 
+              value={eventName} 
+              onChange={(e) => setEventName(e.target.value)} 
+              required 
+            />
+            <input 
+              type="date" 
+              placeholder="Date" 
+              value={eventDate} 
+              onChange={(e) => setEventDate(e.target.value)} 
+              required 
+            />
+            <input 
+              type="time" 
+              placeholder="Time" 
+              value={eventTime} 
+              onChange={(e) => setEventTime(e.target.value)} 
+              required 
+            />
+            <input 
+              type="text" 
+              placeholder="Location" 
+              value={eventLocation} 
+              onChange={(e) => setEventLocation(e.target.value)} 
+              required 
+            />
+            <textarea 
+              placeholder="Description" 
+              value={eventDescription} 
+              onChange={(e) => setEventDescription(e.target.value)} 
+              required 
+            ></textarea>
             <button type="submit">Create Event</button>
           </form>
         </section>
         <section>
           <h2><FontAwesomeIcon icon={faCalendarAlt} /> Manage Events</h2>
           <div className="event-list">
-            {events.map((event) => (
-              <div className="event" key={event._id}>
-                <p>{event.name}</p>
-                <button className="btn-edit">Edit</button>
-                <br /><br />
-                <button className="btn-delete" onClick={() => handleDeleteEvent(event._id)}>Delete</button>
-              </div>
-            ))}
+            <div className="event">
+              <p>Event 1</p>
+              <button className="btn-edit">Edit</button>
+              <br /><br />
+              <button className="btn-delete">Delete</button>
+            </div>
+            <div className="event">
+              <p>Event 2</p>
+              <button className="btn-edit">Edit</button>
+              <br />
+              <br />
+              <button className="btn-delete">Delete</button>
+            </div>
           </div>
         </section>
         <section>
           <h2><FontAwesomeIcon icon={faSearch} /> Venue Search</h2>
-          <form>
-            <input type="text" placeholder="Location" />
-            <input type="text" placeholder="Capacity" />
-            <input type="text" placeholder="Amenities" />
-            <input type="text" placeholder="Budget" />
+          <form onSubmit={handleSearch}>
+            <input 
+              type="text" 
+              placeholder="Search for places" 
+              value={searchQuery} 
+              onChange={(e) => setSearchQuery(e.target.value)} 
+              required 
+            />
             <button type="submit">Search</button>
           </form>
+          <ul>
+            {searchResults.map((place, index) => (
+              <li key={index}>{place.name} - {place.formatted_address}</li>
+            ))}
+          </ul>
           <Map center={{ lat: -34.397, lng: 150.644 }} zoom={8} />
         </section>
         <section>

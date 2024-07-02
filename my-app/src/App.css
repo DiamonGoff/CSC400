@@ -1,10 +1,5 @@
 /* App.css */
 
-/* Enable smooth scrolling */
-html {
-  scroll-behavior: smooth;
-}
-
 /* Reset some default browser styles */
 * {
   margin: 0;
@@ -18,6 +13,11 @@ body {
   line-height: 1.6;
   background-color: #f5f5f5;
   color: #333;
+}
+
+/* Add smooth scrolling */
+html {
+  scroll-behavior: smooth;
 }
 
 /* Header styles */
@@ -118,6 +118,93 @@ main {
   font-size: 1.2rem;
   color: #666;
   margin-bottom: 20px;
+}
+
+/* About Section */
+.about-section {
+  background: white;
+  padding: 20px;
+  margin-top: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center; /* Center text in about section */
+}
+
+.about-section h2 {
+  font-size: 2rem;
+  color: #5A20CB;
+  margin-bottom: 10px;
+}
+
+.about-section p {
+  font-size: 1.2rem;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+/* Testimonials Section */
+.testimonials-section {
+  background: white;
+  padding: 20px;
+  margin-top: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center; /* Center text in testimonials section */
+}
+
+.testimonials-section h2 {
+  font-size: 2rem;
+  color: #5A20CB;
+  margin-bottom: 10px;
+}
+
+.testimonials-section .testimonial {
+  font-size: 1.2rem;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.testimonials-section .testimonial span {
+  display: block;
+  font-size: 1rem;
+  color: #333;
+}
+
+/* CTA Section */
+.cta-section {
+  background: white;
+  padding: 20px;
+  margin-top: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center; /* Center text in CTA section */
+}
+
+.cta-section h2 {
+  font-size: 2rem;
+  color: #5A20CB;
+  margin-bottom: 10px;
+}
+
+.cta-section p {
+  font-size: 1.2rem;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.cta-section .btn {
+  margin: 10px;
+  background-color: #5A20CB;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.cta-section .btn:hover {
+  background-color: #4A10BB;
 }
 
 /* Footer styles */
