@@ -18,20 +18,20 @@ router.get('/events', async (req, res) => {
 
 // Create a new event
 router.post('/events', async (req, res) => {
-  const location = req.body.location;
+  const { name, date, time, location, description } = req.body;
 
   try {
     const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(location)}&key=${process.env.GOOGLE_MAPS_API_KEY}`);
     const { lat, lng } = response.data.results[0].geometry.location;
 
     const event = new Event({
-      name: req.body.name,
-      date: req.body.date,
-      time: req.body.time,
+      name,
+      date,
+      time,
       location,
       latitude: lat,
       longitude: lng,
-      description: req.body.description
+      description
     });
 
     const newEvent = await event.save();
