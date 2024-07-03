@@ -6,15 +6,15 @@ import axios from 'axios';
 import Map from './Map';
 
 function OrganizerInterface() {
+  // State for the form inputs
   const [eventName, setEventName] = useState('');
   const [eventDate, setEventDate] = useState('');
   const [eventTime, setEventTime] = useState('');
   const [eventLocation, setEventLocation] = useState('');
   const [eventDescription, setEventDescription] = useState('');
+  const [message, setMessage] = useState(''); // State for the confirmation message
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-
+  // Function to handle form submission
   const handleCreateEvent = async (e) => {
     e.preventDefault();
     try {
@@ -25,24 +25,17 @@ function OrganizerInterface() {
         location: eventLocation,
         description: eventDescription
       });
-      alert('Event created successfully');
+      setMessage('Event created successfully');
       console.log(response.data);
+      // Clear form inputs
+      setEventName('');
+      setEventDate('');
+      setEventTime('');
+      setEventLocation('');
+      setEventDescription('');
     } catch (error) {
+      setMessage('There was an error creating the event!');
       console.error('There was an error creating the event!', error);
-    }
-  };
-
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await axios.get('http://localhost:3001/places', {
-        params: {
-          query: searchQuery
-        }
-      });
-      setSearchResults(response.data);
-    } catch (error) {
-      console.error('There was an error searching for places!', error);
     }
   };
 
@@ -55,6 +48,7 @@ function OrganizerInterface() {
         <section>
           <br />
           <h2><FontAwesomeIcon icon={faCalendarPlus} /> Create New Event</h2>
+          {message && <div className="confirmation-message">{message}</div>} {/* Display the confirmation message */}
           <form onSubmit={handleCreateEvent}>
             <input 
               type="text" 
@@ -113,21 +107,13 @@ function OrganizerInterface() {
         </section>
         <section>
           <h2><FontAwesomeIcon icon={faSearch} /> Venue Search</h2>
-          <form onSubmit={handleSearch}>
-            <input 
-              type="text" 
-              placeholder="Search for places" 
-              value={searchQuery} 
-              onChange={(e) => setSearchQuery(e.target.value)} 
-              required 
-            />
+          <form>
+            <input type="text" placeholder="Location" />
+            <input type="text" placeholder="Capacity" />
+            <input type="text" placeholder="Amenities" />
+            <input type="text" placeholder="Budget" />
             <button type="submit">Search</button>
           </form>
-          <ul>
-            {searchResults.map((place, index) => (
-              <li key={index}>{place.name} - {place.formatted_address}</li>
-            ))}
-          </ul>
           <Map center={{ lat: -34.397, lng: 150.644 }} zoom={8} />
         </section>
         <section>

@@ -136,3 +136,22 @@ footer {
   width: 100%;
   bottom: 0;
 }
+.confirmation-message {
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  background-color: #f0f0f0;
+  color: #333;
+  border-radius: 5px;
+}
+.map-container {
+  margin-top: 20px;
+  border: 2px solid #ccc;
+  padding: 10px;
+  border-radius: 5px;
+  height: 400px; /* Adjust height as needed */
+}
+
+.map-container > div {
+  height: 100%; /* Ensure the map fills the container */
+}
