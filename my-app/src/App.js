@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import OrganizerInterface from './components/Organizer/OrganizerInterface';
 import AttendeeInterface from './components/Attendee/AttendeeInterface';
@@ -11,15 +11,17 @@ import Register from './components/Register';
 import './App.css'; // Import the CSS file for styling
 
 function App() {
+  const [user, setUser] = useState(null);
+
   return (
     <Router>
       <div className="App">
-        <Header />
+        <Header user={user} />
         <Routes>
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<Login setUser={setUser} />} />
           <Route path="/organizer" element={<OrganizerInterface />} />
           <Route path="/attendee" element={<AttendeeInterface />} />
-          <Route path="/register" element={<Register />} /> {/* Route for Register component */}
+          <Route path="/register" element={<Register />} />
           <Route path="/" element={
             <>
               <HeroSection />
@@ -73,12 +75,14 @@ function App() {
                     <span>- AlsoNotDiamon</span>
                   </div>
                 </section>
-                <section className="cta-section">
-                  <h2>Get Started with EventConnect</h2>
-                  <p>Sign up today and start planning your perfect event!</p>
-                  <Link to="/register" className="btn btn-primary">Sign Up</Link>
-                  <Link to="/login" className="btn btn-secondary">Log In</Link>
-                </section>
+                {!user && (
+                  <section className="cta-section">
+                    <h2>Get Started with EventConnect</h2>
+                    <p>Sign up today and start planning your perfect event!</p>
+                    <Link to="/register" className="btn btn-primary">Sign Up</Link>
+                    <Link to="/login" className="btn btn-secondary">Log In</Link>
+                  </section>
+                )}
               </main>
             </>
           } />
