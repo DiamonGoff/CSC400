@@ -8,6 +8,7 @@ import HeroSection from './components/HeroSection';
 import FeaturesSection from './components/FeaturesSection';
 import Footer from './components/Footer';
 import Register from './components/Register';
+import Profile from './components/Profile'; // Import Profile component
 import './App.css'; // Import the CSS file for styling
 
 function App() {
@@ -19,7 +20,8 @@ function App() {
         <Header user={user} />
         <Routes>
           <Route path="/login" element={<Login setUser={setUser} />} />
-          <Route path="/organizer" element={<OrganizerInterface />} />
+          <Route path="/organizer" element={<OrganizerInterface user={user} setUser={setUser} />} />
+          <Route path="/organizer/profile" element={<Profile user={user} setUser={setUser} />} />
           <Route path="/attendee" element={<AttendeeInterface />} />
           <Route path="/register" element={<Register />} />
           <Route path="/" element={

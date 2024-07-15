@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarPlus, faCalendarAlt, faSearch, faTasks } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import Map from './Map';
+import { Link } from 'react-router-dom'; // Import Link from react-router-dom
 
 function OrganizerInterface() {
   // State for the form inputs
@@ -45,6 +46,11 @@ function OrganizerInterface() {
         <header className="header">
           <h1>Event Organizer Interface</h1>
         </header>
+        <nav>
+          <Link to="/organizer/profile" className="btn">Profile</Link>
+          <Link to="/organizer/venue-management" className="btn">Venue Management</Link>
+          <Link to="/organizer/task-management" className="btn">Task Management</Link>
+        </nav>
         <section>
           <br />
           <h2><FontAwesomeIcon icon={faCalendarPlus} /> Create New Event</h2>
