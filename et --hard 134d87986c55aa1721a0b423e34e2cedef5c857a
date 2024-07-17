@@ -1,0 +1,109 @@
+[33mcommit 134d87986c55aa1721a0b423e34e2cedef5c857a[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: DiamonGoff <144834816+DiamonGoff@users.noreply.github.com>
+Date:   Sat Jul 13 15:41:33 2024 +0000
+
+    authentication, signup, login, and UI
+
+[33mcommit 71f253d456b4fd4b89b2943e8756a4cc7e9b2186[m
+Author: DiamonGoff <144834816+DiamonGoff@users.noreply.github.com>
+Date:   Wed Jul 3 17:48:32 2024 +0000
+
+    email
+
+[33mcommit 4018fe10f7df6a6baae50e37ce9808f2a44d9ca8[m
+Author: DiamonGoff <144834816+DiamonGoff@users.noreply.github.com>
+Date:   Wed Jul 3 17:45:48 2024 +0000
+
+    email
+
+[33mcommit d488de375fd20ca2a86180334329ca831d1e38e6[m
+Author: DiamonGoff <144834816+DiamonGoff@users.noreply.github.com>
+Date:   Tue Jul 2 14:08:58 2024 +0000
+
+    UI
+
+[33mcommit 8943e25470e943f336bf6bbb071b46d3efc3ded2[m
+Author: DiamonGoff <144834816+DiamonGoff@users.noreply.github.com>
+Date:   Tue Jul 2 06:22:54 2024 +0000
+
+    Addint Calender and Places API into backend
+
+[33mcommit 95891aa63eac262d60165367d3a39cc1f4ad9494[m
+Merge: f80d1e38 b99f046d
+Author: DiamonGoff <144834816+DiamonGoff@users.noreply.github.com>
+Date:   Tue Jul 2 02:56:32 2024 +0000
+
+    Landing page changes
+
+[33mcommit f80d1e38ae8e26b3d4fda081160369b760d93c2f[m
+Author: DiamonGoff <144834816+DiamonGoff@users.noreply.github.com>
+Date:   Tue Jul 2 02:45:58 2024 +0000
+
+    Landing page changes
+
+[33mcommit 9063925953bc995d90f1f8375841c372d70abc9c[m
+Author: DiamonGoff <144834816+DiamonGoff@users.noreply.github.com>
+Date:   Tue Jul 2 02:39:22 2024 +0000
+
+    Google Maps Api addition
+
+[33mcommit b99f046df0250e9096fb2a0e87668ae4cb80d9a9[m
+Merge: 5a5663ae 50229fc5
+Author: QuintonC10 <haughtonq1@southernct.edu>
+Date:   Mon Jul 1 22:19:34 2024 -0400
+
+    Merge branch 'main' of https://github.com/DiamonGoff/CSC400
+
+[33mcommit 5a5663ae8e96c8816cb6aca3c62a1bcb33ee6335[m
+Author: QuintonC10 <haughtonq1@southernct.edu>
+Date:   Mon Jul 1 22:16:19 2024 -0400
+
+    Added Register component and updated App.js for registration functionality
+
+[33mcommit 50229fc50a503f620a1d22c981df740d9ab18a47[m
+Author: DiamonGoff <144834816+DiamonGoff@users.noreply.github.com>
+Date:   Tue Jul 2 02:01:16 2024 +0000
+
+    Google Maps Api addition
+
+[33mcommit d001284ce2d5ab648a81bddce57484434993e169[m
+Author: DiamonGoff <144834816+DiamonGoff@users.noreply.github.com>
+Date:   Mon Jul 1 22:08:27 2024 +0000
+
+    backend creation
+
+[33mcommit 000d468c8cbd9074457039145f6ae9472ae0ec8e[m
+Author: DiamonGoff <144834816+DiamonGoff@users.noreply.github.com>
+Date:   Tue Jun 25 01:28:38 2024 +0000
+
+    Update .gitignore to exclude node_modules
+
+[33mcommit c98f9f226c9b5c2e92662e795030f137604dde9a[m
+Author: DiamonGoff <144834816+DiamonGoff@users.noreply.github.com>
+Date:   Tue Jun 25 01:11:14 2024 +0000
+
+    UI changes
+
+[33mcommit d1a96d8308b41c6692f2d7c2e66e435335dc74c7[m
+Author: DiamonGoff <144834816+DiamonGoff@users.noreply.github.com>
+Date:   Sat Jun 15 01:01:23 2024 -0400
+
+    Big Change
+
+[33mcommit 858516c43662ea586ce81bc351ca02b9949d6d0c[m
+Author: DiamonGoff <144834816+DiamonGoff@users.noreply.github.com>
+Date:   Wed Jun 5 16:44:56 2024 -0400
+
+    Changes
+
+[33mcommit 3b00d0bed244601593e9588e1490f4c6ff6d17ff[m
+Author: QuintonC10 <haughtonq1@southernct.edu>
+Date:   Wed Jun 5 15:29:50 2024 -0400
+
+    Attendee Interface,organizer interface, venue management
+
+[33mcommit 6eb288a7d90b378448d0a9651737cd046436c06d[m
+Author: DiamonGoff <144834816+DiamonGoff@users.noreply.github.com>
+Date:   Wed Jun 5 10:50:15 2024 -0400
+
+    Changes

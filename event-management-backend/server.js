@@ -7,6 +7,7 @@ const cors = require('cors'); // Add this line
 const eventRoutes = require('./routes/event');
 const authRoutes = require('./routes/auth');
 const guestRoutes = require('./routes/guest'); // Add guest routes if needed
+const venuesRoutes = require('./routes/venues'); // Import venues routes
 
 const app = express();
 const port = 3001; // Use a different port if 3000 is in use by the frontend
@@ -27,6 +28,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 app.use('/', eventRoutes);
 app.use('/auth', authRoutes);
 app.use('/guests', guestRoutes); // Add this line if you have guest routes
+app.use('/venues', venuesRoutes); // Use venues routes
 
 // Start the server
 app.listen(port, () => {

@@ -4,18 +4,54 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarPlus, faCalendarAlt, faSearch, faTasks } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import Map from './Map';
-import { Link } from 'react-router-dom'; // Import Link from react-router-dom
+import { Link } from 'react-router-dom';
+import Select from 'react-select';
+
+const amenitiesOptions = [
+  { value: 'WiFi', label: 'WiFi' },
+  { value: 'Parking', label: 'Parking' },
+  { value: 'Restrooms', label: 'Restrooms' },
+  { value: 'AV Equipment (Audio/Visual)', label: 'AV Equipment (Audio/Visual)' },
+  { value: 'Stage', label: 'Stage' },
+  { value: 'Dance Floor', label: 'Dance Floor' },
+  { value: 'Outdoor Area', label: 'Outdoor Area' },
+  { value: 'Catering Services', label: 'Catering Services' },
+  { value: 'Bar Services', label: 'Bar Services' },
+  { value: 'Tables and Chairs', label: 'Tables and Chairs' },
+  { value: 'Linens', label: 'Linens' },
+  { value: 'Decorations', label: 'Decorations' },
+  { value: 'Lighting', label: 'Lighting' },
+  { value: 'DJ or Live Music', label: 'DJ or Live Music' },
+  { value: 'Photo Booth', label: 'Photo Booth' },
+  { value: 'Projector and Screen', label: 'Projector and Screen' },
+  { value: 'Private Rooms', label: 'Private Rooms' },
+  { value: 'Kids Play Area', label: 'Kids Play Area' },
+  { value: 'Air Conditioning/Heating', label: 'Air Conditioning/Heating' },
+  { value: 'Accessible Facilities (Wheelchair Access)', label: 'Accessible Facilities (Wheelchair Access)' },
+  { value: 'Coat Check', label: 'Coat Check' },
+  { value: 'Security Services', label: 'Security Services' },
+  { value: 'Sound System', label: 'Sound System' },
+  { value: 'Games and Entertainment', label: 'Games and Entertainment' },
+  { value: 'Pet-Friendly', label: 'Pet-Friendly' },
+  { value: 'Swimming Pool', label: 'Swimming Pool' },
+  { value: 'Spa Services', label: 'Spa Services' },
+  { value: 'Backup Power Supply', label: 'Backup Power Supply' },
+  { value: 'Fireplace', label: 'Fireplace' },
+  { value: 'Smoking Area', label: 'Smoking Area' }
+];
 
 function OrganizerInterface() {
-  // State for the form inputs
   const [eventName, setEventName] = useState('');
   const [eventDate, setEventDate] = useState('');
   const [eventTime, setEventTime] = useState('');
   const [eventLocation, setEventLocation] = useState('');
   const [eventDescription, setEventDescription] = useState('');
-  const [message, setMessage] = useState(''); // State for the confirmation message
+  const [message, setMessage] = useState('');
+  const [venues, setVenues] = useState([]);
+  const [selectedAmenities, setSelectedAmenities] = useState([]);
+  const [capacity, setCapacity] = useState('');
+  const [budget, setBudget] = useState('');
 
-  // Function to handle form submission
   const handleCreateEvent = async (e) => {
     e.preventDefault();
     try {
@@ -27,8 +63,6 @@ function OrganizerInterface() {
         description: eventDescription
       });
       setMessage('Event created successfully');
-      console.log(response.data);
-      // Clear form inputs
       setEventName('');
       setEventDate('');
       setEventTime('');
@@ -36,7 +70,25 @@ function OrganizerInterface() {
       setEventDescription('');
     } catch (error) {
       setMessage('There was an error creating the event!');
-      console.error('There was an error creating the event!', error);
+    }
+  };
+
+  const handleVenueSearch = async (e) => {
+    e.preventDefault();
+    const amenities = selectedAmenities.map(option => option.value);
+    try {
+      // eslint-disable-next-line no-unused-vars
+      const response = await axios.get('http://localhost:3001/venues/search', {
+        params: {
+          location: eventLocation,
+          capacity,
+          amenities: amenities.join(','),
+          budget
+        }
+      });
+      setVenues(response.data);
+    } catch (error) {
+      console.error('There was an error searching for venues!', error);
     }
   };
 
@@ -54,7 +106,7 @@ function OrganizerInterface() {
         <section>
           <br />
           <h2><FontAwesomeIcon icon={faCalendarPlus} /> Create New Event</h2>
-          {message && <div className="confirmation-message">{message}</div>} {/* Display the confirmation message */}
+          {message && <div className="confirmation-message">{message}</div>}
           <form onSubmit={handleCreateEvent}>
             <input 
               type="text" 
@@ -113,14 +165,31 @@ function OrganizerInterface() {
         </section>
         <section>
           <h2><FontAwesomeIcon icon={faSearch} /> Venue Search</h2>
-          <form>
-            <input type="text" placeholder="Location" />
-            <input type="text" placeholder="Capacity" />
-            <input type="text" placeholder="Amenities" />
-            <input type="text" placeholder="Budget" />
+          <form onSubmit={handleVenueSearch}>
+            <input type="text" placeholder="Location" value={eventLocation} onChange={(e) => setEventLocation(e.target.value)} required />
+            <input type="number" placeholder="Capacity" value={capacity} onChange={(e) => setCapacity(e.target.value)} required />
+            <Select
+              isMulti
+              options={amenitiesOptions}
+              className="basic-multi-select"
+              classNamePrefix="select"
+              value={selectedAmenities}
+              onChange={setSelectedAmenities}
+            />
+            <input type="number" placeholder="Budget" value={budget} onChange={(e) => setBudget(e.target.value)} required />
             <button type="submit">Search</button>
           </form>
-          <Map center={{ lat: -34.397, lng: 150.644 }} zoom={8} />
+          <div className="venue-list">
+            {venues.map((venue, index) => (
+              <div key={index} className="venue">
+                <h3>{venue.name}</h3>
+                <p><strong>Address:</strong> {venue.address}</p>
+                <p><strong>Capacity:</strong> {venue.capacity}</p>
+                <p><strong>Amenities:</strong> {(venue.amenities || []).join(', ')}</p>
+                <p><strong>Price:</strong> {venue.price}</p>
+              </div>
+            ))}
+          </div>
         </section>
         <section>
           <h2><FontAwesomeIcon icon={faTasks} /> Task Management</h2>
