@@ -37,7 +37,8 @@ const amenitiesOptions = [
   { value: 'Spa Services', label: 'Spa Services' },
   { value: 'Backup Power Supply', label: 'Backup Power Supply' },
   { value: 'Fireplace', label: 'Fireplace' },
-  { value: 'Smoking Area', label: 'Smoking Area' }
+  { value: 'Smoking Area', label: 'Smoking Area' },
+  { value: 'Food', label: 'Food' }
 ];
 
 function OrganizerInterface() {
@@ -75,14 +76,13 @@ function OrganizerInterface() {
 
   const handleVenueSearch = async (e) => {
     e.preventDefault();
-    const amenities = selectedAmenities.map(option => option.value);
+    const amenities = selectedAmenities.map(option => option.value).join(',');
     try {
-      // eslint-disable-next-line no-unused-vars
       const response = await axios.get('http://localhost:3001/venues/search', {
         params: {
           location: eventLocation,
           capacity,
-          amenities: amenities.join(','),
+          amenities,
           budget
         }
       });
@@ -175,6 +175,7 @@ function OrganizerInterface() {
               classNamePrefix="select"
               value={selectedAmenities}
               onChange={setSelectedAmenities}
+              placeholder="Select the Amenities you'd like"
             />
             <input type="number" placeholder="Budget" value={budget} onChange={(e) => setBudget(e.target.value)} required />
             <button type="submit">Search</button>
@@ -187,6 +188,8 @@ function OrganizerInterface() {
                 <p><strong>Capacity:</strong> {venue.capacity}</p>
                 <p><strong>Amenities:</strong> {(venue.amenities || []).join(', ')}</p>
                 <p><strong>Price:</strong> {venue.price}</p>
+                <p><strong>Phone:</strong> {venue.phone_number}</p>
+                <p><strong>Website:</strong> <a href={venue.website} target="_blank" rel="noopener noreferrer">{venue.website}</a></p>
               </div>
             ))}
           </div>
