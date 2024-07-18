@@ -9,26 +9,26 @@ const eventSchema = new mongoose.Schema({
     type: Date,
     required: true
   },
-  location: {
+  time: {
     type: String,
     required: true
   },
-  latitude: {
-    type: Number,
-    required: true
-  },
-  longitude: {
-    type: Number,
+  location: {
+    type: String,
     required: true
   },
   description: {
     type: String,
     required: true
   },
-  guests: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Guest'
-  }]
+  guestList: {
+    type: [String], // Assuming an array of guest emails or phone numbers
+    default: []
+  },
+  specialRequirements: {
+    type: String,
+    default: ''
+  }
 });
 
 const Event = mongoose.model('Event', eventSchema);

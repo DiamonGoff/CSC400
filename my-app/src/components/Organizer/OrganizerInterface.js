@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
-import './OrganizerInterface.css';
+import React, { useState, useEffect } from 'react';
+import './OrganizerInterface.css'; // Ensure this import is present
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarPlus, faCalendarAlt, faSearch, faTasks } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
-import Map from './Map';
 import { Link } from 'react-router-dom';
 import Select from 'react-select';
 
@@ -52,6 +51,21 @@ function OrganizerInterface() {
   const [selectedAmenities, setSelectedAmenities] = useState([]);
   const [capacity, setCapacity] = useState('');
   const [budget, setBudget] = useState('');
+  const [events, setEvents] = useState([]);
+  const [invite, setInvite] = useState('');
+  const [editEventId, setEditEventId] = useState(null);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await axios.get('http://localhost:3001/events');
+        setEvents(response.data);
+      } catch (error) {
+        console.error('There was an error fetching the events!', error);
+      }
+    };
+    fetchEvents();
+  }, []);
 
   const handleCreateEvent = async (e) => {
     e.preventDefault();
@@ -61,7 +75,9 @@ function OrganizerInterface() {
         date: eventDate,
         time: eventTime,
         location: eventLocation,
-        description: eventDescription
+        description: eventDescription,
+        guestList: [],
+        specialRequirements: ''
       });
       setMessage('Event created successfully');
       setEventName('');
@@ -69,8 +85,66 @@ function OrganizerInterface() {
       setEventTime('');
       setEventLocation('');
       setEventDescription('');
+      setEvents([...events, response.data]); // Add the new event to the events array
     } catch (error) {
       setMessage('There was an error creating the event!');
+    }
+  };
+
+  const handleInviteSend = async (eventId) => {
+    const guests = invite.split(',').map(email => email.trim());
+    try {
+      await axios.post('http://localhost:3001/events/send-invite', {
+        eventId,
+        guests
+      });
+      setMessage('Invites sent successfully');
+      setInvite('');
+    } catch (error) {
+      console.error('There was an error sending the invites!', error);
+      setMessage('There was an error sending the invites!');
+    }
+  };
+
+  const handleEventEdit = (eventId) => {
+    setEditEventId(eventId);
+    const event = events.find(event => event._id === eventId);
+    setEventName(event.name);
+    setEventDate(event.date);
+    setEventTime(event.time);
+    setEventLocation(event.location);
+    setEventDescription(event.description);
+  };
+
+  const handleEventUpdate = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.put(`http://localhost:3001/events/${editEventId}`, {
+        name: eventName,
+        date: eventDate,
+        time: eventTime,
+        location: eventLocation,
+        description: eventDescription
+      });
+      setEvents(events.map(event => (event._id === editEventId ? response.data : event)));
+      setMessage('Event updated successfully');
+      setEditEventId(null);
+      setEventName('');
+      setEventDate('');
+      setEventTime('');
+      setEventLocation('');
+      setEventDescription('');
+    } catch (error) {
+      setMessage('There was an error updating the event!');
+    }
+  };
+
+  const handleEventDelete = async (eventId) => {
+    try {
+      await axios.delete(`http://localhost:3001/events/${eventId}`);
+      setEvents(events.filter(event => event._id !== eventId));
+    } catch (error) {
+      console.error('There was an error deleting the event!', error);
     }
   };
 
@@ -105,9 +179,9 @@ function OrganizerInterface() {
         </nav>
         <section>
           <br />
-          <h2><FontAwesomeIcon icon={faCalendarPlus} /> Create New Event</h2>
+          <h2><FontAwesomeIcon icon={faCalendarPlus} /> {editEventId ? 'Edit Event' : 'Create New Event'}</h2>
           {message && <div className="confirmation-message">{message}</div>}
-          <form onSubmit={handleCreateEvent}>
+          <form onSubmit={editEventId ? handleEventUpdate : handleCreateEvent}>
             <input 
               type="text" 
               placeholder="Event Name" 
@@ -142,25 +216,31 @@ function OrganizerInterface() {
               onChange={(e) => setEventDescription(e.target.value)} 
               required 
             ></textarea>
-            <button type="submit">Create Event</button>
+            <button type="submit" className="btn">{editEventId ? 'Update Event' : 'Create Event'}</button>
           </form>
         </section>
         <section>
           <h2><FontAwesomeIcon icon={faCalendarAlt} /> Manage Events</h2>
           <div className="event-list">
-            <div className="event">
-              <p>Event 1</p>
-              <button className="btn-edit">Edit</button>
-              <br /><br />
-              <button className="btn-delete">Delete</button>
-            </div>
-            <div className="event">
-              <p>Event 2</p>
-              <button className="btn-edit">Edit</button>
-              <br />
-              <br />
-              <button className="btn-delete">Delete</button>
-            </div>
+            {events.map(event => (
+              <div key={event._id} className="event">
+                <p><strong>Name:</strong> {event.name}</p>
+                <p><strong>Date:</strong> {new Date(event.date).toLocaleDateString()}</p>
+                <p><strong>Time:</strong> {event.time}</p>
+                <p><strong>Location:</strong> {event.location}</p>
+                <p><strong>Description:</strong> {event.description}</p>
+                <input 
+                  type="text" 
+                  style={{ width: '300px' }} // Make input box longer
+                  placeholder="Guest Emails (comma separated)" 
+                  value={invite} 
+                  onChange={(e) => setInvite(e.target.value)} 
+                />
+                <button className="btn" onClick={() => handleInviteSend(event._id)}>Send Invites</button>
+                <button className="btn" onClick={() => handleEventEdit(event._id)}>Edit</button>
+                <button className="btn" onClick={() => handleEventDelete(event._id)}>Delete</button>
+              </div>
+            ))}
           </div>
         </section>
         <section>
@@ -178,7 +258,7 @@ function OrganizerInterface() {
               placeholder="Select the Amenities you'd like"
             />
             <input type="number" placeholder="Budget" value={budget} onChange={(e) => setBudget(e.target.value)} required />
-            <button type="submit">Search</button>
+            <button type="submit" className="btn">Search</button>
           </form>
           <div className="venue-list">
             {venues.map((venue, index) => (
@@ -199,17 +279,17 @@ function OrganizerInterface() {
           <div className="task-list">
             <div className="task">
               <p>Task 1</p>
-              <button className="btn-edit">Edit</button>
+              <button className="btn">Edit</button>
               <br />
               <br />
-              <button className="btn-complete">Complete</button>
+              <button className="btn">Complete</button>
             </div>
             <div className="task">
               <p>Task 2</p>
-              <button className="btn-edit">Edit</button>
+              <button className="btn">Edit</button>
               <br />
               <br />
-              <button className="btn-complete">Complete</button>
+              <button className="btn">Complete</button>
             </div>
           </div>
         </section>
