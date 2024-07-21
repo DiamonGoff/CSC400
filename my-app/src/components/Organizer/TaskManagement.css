@@ -1,0 +1,96 @@
+/* src/components/Organizer/TaskManagement.css */
+
+.task-management {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .task-management h2 {
+    color: #612486;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .task-management form {
+    margin-bottom: 20px;
+  }
+  
+  .task-management input,
+  .task-management textarea,
+  .task-management select,
+  .task-management button {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .task-management button {
+    background-color: #612486;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .task-management button:hover {
+    background-color: #5a1486;
+  }
+  
+  .filter-section {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .filter-section input,
+  .filter-section select {
+    flex: 1;
+    margin-right: 10px;
+  }
+  
+  .filter-section input:last-child,
+  .filter-section select:last-child {
+    margin-right: 0;
+  }
+  
+  .task-list .task {
+    background-color: white;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .task-list .task p {
+    margin: 0;
+  }
+  
+  .task-list .task button {
+    margin-left: 10px;
+    background-color: #612486;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .task-list .task button:hover {
+    background-color: #5a1486;
+  }
+  
+  .task-list .task-details {
+    display: flex;
+    flex-direction: column;
+    margin-right: 20px;
+  }
+  
+  .task-list .task-actions {
+    display: flex;
+    flex-direction: column;
+  }
+  

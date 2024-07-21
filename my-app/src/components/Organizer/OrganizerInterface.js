@@ -1,3 +1,5 @@
+// src/components/Organizer/OrganizerInterface.js
+
 import React, { useState, useEffect } from 'react';
 import './OrganizerInterface.css'; // Ensure this import is present
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -5,6 +7,7 @@ import { faCalendarPlus, faCalendarAlt, faSearch, faTasks } from '@fortawesome/f
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import Select from 'react-select';
+import TaskManagement from './TaskManagement'; // Import TaskManagement component
 
 const amenitiesOptions = [
   { value: 'WiFi', label: 'WiFi' },
@@ -274,25 +277,7 @@ function OrganizerInterface() {
             ))}
           </div>
         </section>
-        <section>
-          <h2><FontAwesomeIcon icon={faTasks} /> Task Management</h2>
-          <div className="task-list">
-            <div className="task">
-              <p>Task 1</p>
-              <button className="btn">Edit</button>
-              <br />
-              <br />
-              <button className="btn">Complete</button>
-            </div>
-            <div className="task">
-              <p>Task 2</p>
-              <button className="btn">Edit</button>
-              <br />
-              <br />
-              <button className="btn">Complete</button>
-            </div>
-          </div>
-        </section>
+        <TaskManagement /> {/* Add TaskManagement component here */}
         <footer>
           &copy; 2024 EventConnect. All rights reserved.
         </footer>
