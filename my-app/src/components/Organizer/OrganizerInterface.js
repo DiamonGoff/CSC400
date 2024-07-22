@@ -1,46 +1,18 @@
-// src/components/Organizer/OrganizerInterface.js
-
 import React, { useState, useEffect } from 'react';
-import './OrganizerInterface.css'; // Ensure this import is present
+import './OrganizerInterface.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendarPlus, faCalendarAlt, faSearch, faTasks } from '@fortawesome/free-solid-svg-icons';
+import { faCalendarPlus, faCalendarAlt, faSearch, faTasks, faUser, faBell, faChartBar } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Select from 'react-select';
-import TaskManagement from './TaskManagement'; // Import TaskManagement component
+import TaskManagement from './TaskManagement';
 
 const amenitiesOptions = [
   { value: 'WiFi', label: 'WiFi' },
   { value: 'Parking', label: 'Parking' },
   { value: 'Restrooms', label: 'Restrooms' },
-  { value: 'AV Equipment (Audio/Visual)', label: 'AV Equipment (Audio/Visual)' },
-  { value: 'Stage', label: 'Stage' },
-  { value: 'Dance Floor', label: 'Dance Floor' },
-  { value: 'Outdoor Area', label: 'Outdoor Area' },
-  { value: 'Catering Services', label: 'Catering Services' },
-  { value: 'Bar Services', label: 'Bar Services' },
-  { value: 'Tables and Chairs', label: 'Tables and Chairs' },
-  { value: 'Linens', label: 'Linens' },
-  { value: 'Decorations', label: 'Decorations' },
-  { value: 'Lighting', label: 'Lighting' },
-  { value: 'DJ or Live Music', label: 'DJ or Live Music' },
-  { value: 'Photo Booth', label: 'Photo Booth' },
-  { value: 'Projector and Screen', label: 'Projector and Screen' },
-  { value: 'Private Rooms', label: 'Private Rooms' },
-  { value: 'Kids Play Area', label: 'Kids Play Area' },
-  { value: 'Air Conditioning/Heating', label: 'Air Conditioning/Heating' },
-  { value: 'Accessible Facilities (Wheelchair Access)', label: 'Accessible Facilities (Wheelchair Access)' },
-  { value: 'Coat Check', label: 'Coat Check' },
-  { value: 'Security Services', label: 'Security Services' },
-  { value: 'Sound System', label: 'Sound System' },
-  { value: 'Games and Entertainment', label: 'Games and Entertainment' },
-  { value: 'Pet-Friendly', label: 'Pet-Friendly' },
-  { value: 'Swimming Pool', label: 'Swimming Pool' },
-  { value: 'Spa Services', label: 'Spa Services' },
-  { value: 'Backup Power Supply', label: 'Backup Power Supply' },
-  { value: 'Fireplace', label: 'Fireplace' },
-  { value: 'Smoking Area', label: 'Smoking Area' },
-  { value: 'Food', label: 'Food' }
+  { value: 'AV Equipment', label: 'AV Equipment' },
+  // Add other amenities options here
 ];
 
 function OrganizerInterface() {
@@ -58,6 +30,22 @@ function OrganizerInterface() {
   const [invite, setInvite] = useState('');
   const [editEventId, setEditEventId] = useState(null);
 
+  // Profile State
+  const [profile, setProfile] = useState({ name: '', contact: '', preferences: '' });
+
+  // Notifications State
+  const [notifications, setNotifications] = useState([]);
+
+  const navigate = useNavigate();
+  const userId = localStorage.getItem('userId');
+
+  useEffect(() => {
+    if (!userId) {
+      console.error('User ID is missing, redirecting to login');
+      navigate('/login');
+    }
+  }, [userId, navigate]);
+
   useEffect(() => {
     const fetchEvents = async () => {
       try {
@@ -67,8 +55,37 @@ function OrganizerInterface() {
         console.error('There was an error fetching the events!', error);
       }
     };
-    fetchEvents();
-  }, []);
+    if (userId) {
+      fetchEvents();
+    }
+  }, [userId]);
+
+  const fetchProfile = async () => {
+    try {
+      console.log(`Fetching profile for userId: ${userId}`);
+      const response = await axios.get(`http://localhost:3001/profile/${userId}`);
+      setProfile(response.data);
+    } catch (error) {
+      console.error('There was an error fetching the profile!', error);
+    }
+  };
+
+  const fetchNotifications = async () => {
+    try {
+      console.log(`Fetching notifications`);
+      const response = await axios.get('http://localhost:3001/notifications');
+      setNotifications(response.data);
+    } catch (error) {
+      console.error('There was an error fetching the notifications!', error);
+    }
+  };
+
+  useEffect(() => {
+    if (userId) {
+      fetchProfile();
+      fetchNotifications();
+    }
+  }, [userId]);
 
   const handleCreateEvent = async (e) => {
     e.preventDefault();
@@ -88,9 +105,10 @@ function OrganizerInterface() {
       setEventTime('');
       setEventLocation('');
       setEventDescription('');
-      setEvents([...events, response.data]); // Add the new event to the events array
+      setEvents([...events, response.data]);
     } catch (error) {
       setMessage('There was an error creating the event!');
+      console.error('Error creating event:', error.message);
     }
   };
 
@@ -139,6 +157,7 @@ function OrganizerInterface() {
       setEventDescription('');
     } catch (error) {
       setMessage('There was an error updating the event!');
+      console.error('Error updating event:', error.message);
     }
   };
 
@@ -169,6 +188,22 @@ function OrganizerInterface() {
     }
   };
 
+  const handleProfileSave = async (e) => {
+    e.preventDefault();
+    if (!userId) {
+      setMessage('User ID is missing. Please log in again.');
+      return;
+    }
+    try {
+      console.log(`Saving profile for userId: ${userId}`);
+      const response = await axios.put(`http://localhost:3001/profile/${userId}`, profile);
+      setMessage('Profile updated successfully');
+    } catch (error) {
+      setMessage('There was an error updating the profile!');
+      console.error('Error updating profile:', error.message);
+    }
+  };
+
   return (
     <div className="organizer-background">
       <div className="container">
@@ -176,10 +211,39 @@ function OrganizerInterface() {
           <h1>Event Organizer Interface</h1>
         </header>
         <nav>
-          <Link to="/organizer/profile" className="btn">Profile</Link>
-          <Link to="/organizer/venue-management" className="btn">Venue Management</Link>
-          <Link to="/organizer/task-management" className="btn">Task Management</Link>
+          <Link to="/organizer/profile" className="btn"><FontAwesomeIcon icon={faUser} /> Profile</Link>
+          <Link to="/organizer/venue-management" className="btn"><FontAwesomeIcon icon={faSearch} /> Venue Management</Link>
+          <Link to="/organizer/task-management" className="btn"><FontAwesomeIcon icon={faTasks} /> Task Management</Link>
+          <Link to="/organizer/notifications" className="btn"><FontAwesomeIcon icon={faBell} /> Notifications</Link>
+          <Link to="/organizer/analytics" className="btn"><FontAwesomeIcon icon={faChartBar} /> Analytics</Link>
         </nav>
+
+        {/* Profile Section */}
+        <section>
+          <h2>Profile Management</h2>
+          <form onSubmit={handleProfileSave}>
+            <input
+              type="text"
+              placeholder="Name"
+              value={profile.name}
+              onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+            />
+            <input
+              type="text"
+              placeholder="Contact Information"
+              value={profile.contact}
+              onChange={(e) => setProfile({ ...profile, contact: e.target.value })}
+            />
+            <textarea
+              placeholder="Event Preferences"
+              value={profile.preferences}
+              onChange={(e) => setProfile({ ...profile, preferences: e.target.value })}
+            ></textarea>
+            <button className="btn">Save Profile</button>
+          </form>
+        </section>
+
+        {/* Event Management Section */}
         <section>
           <br />
           <h2><FontAwesomeIcon icon={faCalendarPlus} /> {editEventId ? 'Edit Event' : 'Create New Event'}</h2>
@@ -222,6 +286,8 @@ function OrganizerInterface() {
             <button type="submit" className="btn">{editEventId ? 'Update Event' : 'Create Event'}</button>
           </form>
         </section>
+
+        {/* Event List Section */}
         <section>
           <h2><FontAwesomeIcon icon={faCalendarAlt} /> Manage Events</h2>
           <div className="event-list">
@@ -234,7 +300,7 @@ function OrganizerInterface() {
                 <p><strong>Description:</strong> {event.description}</p>
                 <input 
                   type="text" 
-                  style={{ width: '300px' }} // Make input box longer
+                  style={{ width: '300px' }} 
                   placeholder="Guest Emails (comma separated)" 
                   value={invite} 
                   onChange={(e) => setInvite(e.target.value)} 
@@ -246,6 +312,8 @@ function OrganizerInterface() {
             ))}
           </div>
         </section>
+
+        {/* Venue Search Section */}
         <section>
           <h2><FontAwesomeIcon icon={faSearch} /> Venue Search</h2>
           <form onSubmit={handleVenueSearch}>
@@ -277,7 +345,28 @@ function OrganizerInterface() {
             ))}
           </div>
         </section>
-        <TaskManagement /> {/* Add TaskManagement component here */}
+
+        {/* Task Management Section */}
+        <section>
+          <TaskManagement />
+        </section>
+
+        {/* Notifications Section */}
+        <section>
+          <h2><FontAwesomeIcon icon={faBell} /> Notifications</h2>
+          <ul>
+            {notifications.map(notification => (
+              <li key={notification._id}>{notification.message}</li>
+            ))}
+          </ul>
+        </section>
+
+        {/* Analytics and Reporting Section */}
+        <section>
+          <h2><FontAwesomeIcon icon={faChartBar} /> Analytics and Reporting</h2>
+          <p>Analytics and reporting will be implemented here...</p>
+        </section>
+
         <footer>
           &copy; 2024 EventConnect. All rights reserved.
         </footer>

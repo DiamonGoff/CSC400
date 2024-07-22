@@ -1,26 +1,45 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User');
+const User = require('../models/User'); // Adjust the path if necessary
 
-// Update profile route
-router.post('/profile', async (req, res) => {
-  const { email, name, contact, preferences, venueTypes, guestListPreferences, invitationStyles } = req.body;
-
-  try {
-    // Find the user by email and update their profile
-    const user = await User.findOneAndUpdate(
-      { email },
-      { name, contact, preferences, venueTypes, guestListPreferences, invitationStyles },
-      { new: true }
-    );
-    if (!user) {
-      return res.status(404).json({ message: 'User not found.' });
+// Get profile
+router.get('/:userId', async (req, res) => {
+    try {
+        console.log('Fetching profile for userId:', req.params.userId);
+        const user = await User.findById(req.params.userId);
+        if (!user) {
+            console.error('User not found');
+            return res.status(404).send('User not found');
+        }
+        res.send(user);
+    } catch (error) {
+        console.error('Error fetching profile:', error.message);
+        res.status(500).send(error.message);
     }
-    res.status(200).json({ message: 'Profile updated successfully.', user });
-  } catch (error) {
-    console.error('Error updating profile:', error);
-    res.status(500).json({ message: 'Error updating profile.', error: error.message });
-  }
+});
+
+// Update profile
+router.put('/:userId', async (req, res) => {
+    try {
+        console.log('Updating profile for userId:', req.params.userId);
+        const user = await User.findByIdAndUpdate(
+            req.params.userId,
+            {
+                name: req.body.name,
+                contact: req.body.contact,
+                preferences: req.body.preferences
+            },
+            { new: true }
+        );
+        if (!user) {
+            console.error('User not found');
+            return res.status(404).send('User not found');
+        }
+        res.send(user);
+    } catch (error) {
+        console.error('Error updating profile:', error.message);
+        res.status(500).send(error.message);
+    }
 });
 
 module.exports = router;

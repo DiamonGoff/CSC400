@@ -9,6 +9,8 @@ const eventRoutes = require('./routes/event');
 const authRoutes = require('./routes/auth');
 const guestRoutes = require('./routes/guest');
 const venuesRoutes = require('./routes/venues');
+const profileRoutes = require('./routes/profile');
+const notificationsRoutes = require('./routes/notifications');
 
 const app = express();
 const port = 3001; // Use a different port if 3000 is in use by the frontend
@@ -30,6 +32,8 @@ app.use('/events', eventRoutes);
 app.use('/auth', authRoutes);
 app.use('/guests', guestRoutes);
 app.use('/venues', venuesRoutes);
+app.use('/profile', profileRoutes);
+app.use('/notifications', notificationsRoutes);
 
 // Start the server
 app.listen(port, () => {
