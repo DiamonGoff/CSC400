@@ -1,6 +1,6 @@
 // src/components/Register.js
 import React, { useState } from 'react';
-import axios from 'axios';
+import axiosInstance from '../axiosInstance'; // Use the configured Axios instance
 import './Register.css'; // Ensure you have styling for your form
 
 function Register() {
@@ -17,14 +17,14 @@ function Register() {
       return;
     }
     try {
-      const response = await axios.post('http://localhost:3001/auth/signup', {
+      const response = await axiosInstance.post('/auth/register', {
         name,
         email,
         password
       });
       setMessage(response.data.message);
     } catch (error) {
-      setMessage(`Error registering user: ${error.response.data.message || error.message}`);
+      setMessage(`Error registering user: ${error.response?.data?.message || error.message}`);
     }
   };
 

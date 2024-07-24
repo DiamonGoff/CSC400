@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './OrganizerInterface.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarPlus, faCalendarAlt, faSearch, faTasks, faUser, faBell, faChartBar } from '@fortawesome/free-solid-svg-icons';
@@ -6,6 +6,8 @@ import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import Select from 'react-select';
 import TaskManagement from './TaskManagement';
+
+const GOOGLE_MAPS_API_KEY = 'YOUR_GOOGLE_MAPS_API_KEY'; // Replace with your actual API key
 
 const amenitiesOptions = [
   { value: 'WiFi', label: 'WiFi' },
@@ -43,49 +45,58 @@ function OrganizerInterface() {
     if (!userId) {
       console.error('User ID is missing, redirecting to login');
       navigate('/login');
+    } else {
+      console.log(`User ID found: ${userId}`);
     }
   }, [userId, navigate]);
 
+  const fetchEvents = useCallback(async () => {
+    try {
+      const response = await axios.get('http://localhost:3001/events', {
+        withCredentials: true
+      });
+      setEvents(response.data);
+    } catch (error) {
+      console.error('There was an error fetching the events!', error);
+    }
+  }, []);
+
   useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const response = await axios.get('http://localhost:3001/events');
-        setEvents(response.data);
-      } catch (error) {
-        console.error('There was an error fetching the events!', error);
-      }
-    };
     if (userId) {
       fetchEvents();
     }
-  }, [userId]);
+  }, [userId, fetchEvents]);
 
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       console.log(`Fetching profile for userId: ${userId}`);
-      const response = await axios.get(`http://localhost:3001/profile/${userId}`);
+      const response = await axios.get(`http://localhost:3001/profile/${userId}`, {
+        withCredentials: true
+      });
       setProfile(response.data);
     } catch (error) {
       console.error('There was an error fetching the profile!', error);
     }
-  };
+  }, [userId]);
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     try {
       console.log(`Fetching notifications`);
-      const response = await axios.get('http://localhost:3001/notifications');
+      const response = await axios.get('http://localhost:3001/notifications', {
+        withCredentials: true
+      });
       setNotifications(response.data);
     } catch (error) {
       console.error('There was an error fetching the notifications!', error);
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (userId) {
       fetchProfile();
       fetchNotifications();
     }
-  }, [userId]);
+  }, [userId, fetchProfile, fetchNotifications]);
 
   const handleCreateEvent = async (e) => {
     e.preventDefault();
@@ -97,7 +108,10 @@ function OrganizerInterface() {
         location: eventLocation,
         description: eventDescription,
         guestList: [],
-        specialRequirements: ''
+        specialRequirements: '',
+        userId: userId
+      }, {
+        withCredentials: true
       });
       setMessage('Event created successfully');
       setEventName('');
@@ -118,6 +132,8 @@ function OrganizerInterface() {
       await axios.post('http://localhost:3001/events/send-invite', {
         eventId,
         guests
+      }, {
+        withCredentials: true
       });
       setMessage('Invites sent successfully');
       setInvite('');
@@ -146,6 +162,8 @@ function OrganizerInterface() {
         time: eventTime,
         location: eventLocation,
         description: eventDescription
+      }, {
+        withCredentials: true
       });
       setEvents(events.map(event => (event._id === editEventId ? response.data : event)));
       setMessage('Event updated successfully');
@@ -163,7 +181,9 @@ function OrganizerInterface() {
 
   const handleEventDelete = async (eventId) => {
     try {
-      await axios.delete(`http://localhost:3001/events/${eventId}`);
+      await axios.delete(`http://localhost:3001/events/${eventId}`, {
+        withCredentials: true
+      });
       setEvents(events.filter(event => event._id !== eventId));
     } catch (error) {
       console.error('There was an error deleting the event!', error);
@@ -180,7 +200,8 @@ function OrganizerInterface() {
           capacity,
           amenities,
           budget
-        }
+        },
+        withCredentials: true
       });
       setVenues(response.data);
     } catch (error) {
@@ -196,13 +217,45 @@ function OrganizerInterface() {
     }
     try {
       console.log(`Saving profile for userId: ${userId}`);
-      const response = await axios.put(`http://localhost:3001/profile/${userId}`, profile);
+      await axios.put(`http://localhost:3001/profile/${userId}`, profile, {
+        withCredentials: true
+      });
       setMessage('Profile updated successfully');
     } catch (error) {
       setMessage('There was an error updating the profile!');
       console.error('Error updating profile:', error.message);
     }
   };
+
+  useEffect(() => {
+    const loadGoogleMapsApi = async (apiKey) => {
+      return new Promise((resolve, reject) => {
+        if (window.google) {
+          resolve(window.google);
+        } else {
+          const script = document.createElement('script');
+          script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+          script.async = true;
+          script.onload = () => resolve(window.google);
+          script.onerror = (error) => reject(error);
+          document.head.appendChild(script);
+        }
+      });
+    };
+
+    loadGoogleMapsApi(GOOGLE_MAPS_API_KEY).then(() => {
+      const autocomplete = new window.google.maps.places.Autocomplete(
+        document.getElementById('autocomplete'),
+        { types: ['geocode'] }
+      );
+      autocomplete.addListener('place_changed', () => {
+        const place = autocomplete.getPlace();
+        setEventLocation(place.formatted_address);
+      });
+    }).catch(error => {
+      console.error('Failed to load Google Maps API:', error);
+    });
+  }, []);
 
   return (
     <div className="organizer-background">
@@ -272,6 +325,7 @@ function OrganizerInterface() {
             />
             <input 
               type="text" 
+              id="autocomplete" 
               placeholder="Location" 
               value={eventLocation} 
               onChange={(e) => setEventLocation(e.target.value)} 
@@ -317,7 +371,7 @@ function OrganizerInterface() {
         <section>
           <h2><FontAwesomeIcon icon={faSearch} /> Venue Search</h2>
           <form onSubmit={handleVenueSearch}>
-            <input type="text" placeholder="Location" value={eventLocation} onChange={(e) => setEventLocation(e.target.value)} required />
+            <input type="text" id="autocomplete" placeholder="Location" value={eventLocation} onChange={(e) => setEventLocation(e.target.value)} required />
             <input type="number" placeholder="Capacity" value={capacity} onChange={(e) => setCapacity(e.target.value)} required />
             <Select
               isMulti

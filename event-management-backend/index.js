@@ -1,49 +1,46 @@
+// index.js or server.js
 const express = require('express');
 const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-const dotenv = require('dotenv');
 const cors = require('cors');
+const bodyParser = require('body-parser');
+const session = require('express-session');
+const dotenv = require('dotenv');
 
-// Load environment variables from .env file
-dotenv.config();
+dotenv.config(); // Load environment variables
 
 const app = express();
-const port = process.env.PORT || 3001; // Ensure this line sets the default port to 3001
+const port = process.env.PORT || 3001;
 
-// Middleware
+// Middleware setup
+app.use(cors({
+  origin: 'http://127.0.0.1:3000',
+  credentials: true,
+}));
 app.use(bodyParser.json());
-app.use(cors()); // Add this line
+app.use(session({
+  secret: 'yourSecretKey',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false } // Use secure: true in production
+}));
 
 // Import routes
 const authRoutes = require('./routes/auth');
-const eventRoutes = require('./routes/event'); // Adjust path if necessary
-const guestRoutes = require('./routes/guest'); // Adjust path if necessary
-const taskRoutes = require('./routes/task');
-const venueRoutes = require('./routes/venues');
-
-// Basic route
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
+// other routes...
 
 // Use routes
 app.use('/auth', authRoutes);
-app.use('/events', eventRoutes);
-app.use('/guests', guestRoutes); // Ensure this line is correct
-app.use('/tasks', taskRoutes);
-app.use('/venues', venueRoutes);
+// other routes...
 
-// Connect to MongoDB
+// MongoDB connection
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-})
-.then(() => {
+}).then(() => {
   console.log('Connected to MongoDB');
   app.listen(port, () => {
     console.log(`Server running on port ${port}`);
   });
-})
-.catch((err) => {
-  console.error('Failed to connect to MongoDB', err);
+}).catch((error) => {
+  console.error('Connection error', error.message);
 });

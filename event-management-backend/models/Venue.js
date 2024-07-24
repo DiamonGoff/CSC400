@@ -1,15 +1,20 @@
 const mongoose = require('mongoose');
 
 const VenueSchema = new mongoose.Schema({
-    name: String,
-    address: String,
-    capacity: Number,
-    amenities: [String],
-    price: Number,
-    location: {
-        type: { type: String },
-        coordinates: [Number]
-    }
+  name: String,
+  address: String,
+  capacity: Number,
+  amenities: [String],
+  price: Number,
+  location: {
+    type: { type: String },
+    coordinates: [Number]
+  },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  }
 });
 
 VenueSchema.index({ location: '2dsphere' });
