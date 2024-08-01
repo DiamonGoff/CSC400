@@ -6,6 +6,8 @@ import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import Select from 'react-select';
 import TaskManagement from './TaskManagement';
+import VenueCard from './VenueCard';
+import Map from './Map'; // Import Map component
 
 const amenitiesOptions = [
   { value: 'WiFi', label: 'WiFi' },
@@ -36,6 +38,10 @@ function OrganizerInterface() {
   // Notifications State
   const [notifications, setNotifications] = useState([]);
 
+  // Map State
+  const [mapCenter, setMapCenter] = useState({ lat: 37.7749, lng: -122.4194 });
+  const [mapZoom, setMapZoom] = useState(12);
+
   const navigate = useNavigate();
   const userId = localStorage.getItem('userId');
 
@@ -43,22 +49,12 @@ function OrganizerInterface() {
     if (!userId) {
       console.error('User ID is missing, redirecting to login');
       navigate('/login');
-    }
-  }, [userId, navigate]);
-
-  useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const response = await axios.get('http://localhost:3001/events');
-        setEvents(response.data);
-      } catch (error) {
-        console.error('There was an error fetching the events!', error);
-      }
-    };
-    if (userId) {
+    } else {
+      fetchProfile();
+      fetchNotifications();
       fetchEvents();
     }
-  }, [userId]);
+  }, [userId, navigate]);
 
   const fetchProfile = async () => {
     try {
@@ -80,12 +76,14 @@ function OrganizerInterface() {
     }
   };
 
-  useEffect(() => {
-    if (userId) {
-      fetchProfile();
-      fetchNotifications();
+  const fetchEvents = async () => {
+    try {
+      const response = await axios.get('http://localhost:3001/events');
+      setEvents(response.data);
+    } catch (error) {
+      console.error('There was an error fetching the events!', error);
     }
-  }, [userId]);
+  };
 
   const handleCreateEvent = async (e) => {
     e.preventDefault();
@@ -197,11 +195,18 @@ function OrganizerInterface() {
     try {
       console.log(`Saving profile for userId: ${userId}`);
       const response = await axios.put(`http://localhost:3001/profile/${userId}`, profile);
+      setProfile(response.data); // Updated to use the response
       setMessage('Profile updated successfully');
     } catch (error) {
       setMessage('There was an error updating the profile!');
       console.error('Error updating profile:', error.message);
     }
+  };
+
+  const handlePlaceSelected = (place) => {
+    setEventLocation(place.formatted_address);
+    setMapCenter(place.geometry.location);
+    setMapZoom(15);
   };
 
   return (
@@ -308,6 +313,10 @@ function OrganizerInterface() {
                 <button className="btn" onClick={() => handleInviteSend(event._id)}>Send Invites</button>
                 <button className="btn" onClick={() => handleEventEdit(event._id)}>Edit</button>
                 <button className="btn" onClick={() => handleEventDelete(event._id)}>Delete</button>
+                {/* Task Management Section */}
+                <section>
+                  <TaskManagement eventId={event._id} />
+                </section>
               </div>
             ))}
           </div>
@@ -331,24 +340,14 @@ function OrganizerInterface() {
             <input type="number" placeholder="Budget" value={budget} onChange={(e) => setBudget(e.target.value)} required />
             <button type="submit" className="btn">Search</button>
           </form>
-          <div className="venue-list">
-            {venues.map((venue, index) => (
-              <div key={index} className="venue">
-                <h3>{venue.name}</h3>
-                <p><strong>Address:</strong> {venue.address}</p>
-                <p><strong>Capacity:</strong> {venue.capacity}</p>
-                <p><strong>Amenities:</strong> {(venue.amenities || []).join(', ')}</p>
-                <p><strong>Price:</strong> {venue.price}</p>
-                <p><strong>Phone:</strong> {venue.phone_number}</p>
-                <p><strong>Website:</strong> <a href={venue.website} target="_blank" rel="noopener noreferrer">{venue.website}</a></p>
-              </div>
-            ))}
+          <div className="results">
+            <Map center={mapCenter} zoom={mapZoom} onPlaceSelected={handlePlaceSelected} />
+            <div className="venue-list">
+              {venues.map((venue, index) => (
+                <VenueCard key={index} venue={venue} />
+              ))}
+            </div>
           </div>
-        </section>
-
-        {/* Task Management Section */}
-        <section>
-          <TaskManagement />
         </section>
 
         {/* Notifications Section */}

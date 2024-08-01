@@ -8,18 +8,19 @@ const cors = require('cors');
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 3001; // Ensure this line sets the default port to 3001
+const port = process.env.PORT || 3001;
 
 // Middleware
 app.use(bodyParser.json());
-app.use(cors()); // Add this line
+app.use(cors());
 
 // Import routes
 const authRoutes = require('./routes/auth');
-const eventRoutes = require('./routes/event'); // Adjust path if necessary
-const guestRoutes = require('./routes/guest'); // Adjust path if necessary
+const eventRoutes = require('./routes/event');
+const guestRoutes = require('./routes/guest');
 const taskRoutes = require('./routes/task');
 const venueRoutes = require('./routes/venues');
+const travelSearchRoutes = require('./routes/travelSearch');
 
 // Basic route
 app.get('/', (req, res) => {
@@ -29,21 +30,22 @@ app.get('/', (req, res) => {
 // Use routes
 app.use('/auth', authRoutes);
 app.use('/events', eventRoutes);
-app.use('/guests', guestRoutes); // Ensure this line is correct
+app.use('/guests', guestRoutes);
 app.use('/tasks', taskRoutes);
 app.use('/venues', venueRoutes);
-
+app.use('/travelSearch', travelSearchRoutes);
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
-.then(() => {
-  console.log('Connected to MongoDB');
-  app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+  .then(() => {
+    console.log('Connected to MongoDB');
+    // Start the server after a successful database connection
+    app.listen(port, () => {
+      console.log(`Server running on port ${port}`);
+    });
+  })
+  .catch((err) => {
+    console.error('Failed to connect to MongoDB', err);
   });
-})
-.catch((err) => {
-  console.error('Failed to connect to MongoDB', err);
-});

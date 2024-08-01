@@ -1,17 +1,13 @@
 const mongoose = require('mongoose');
 
 const VenueSchema = new mongoose.Schema({
-    name: String,
-    address: String,
-    capacity: Number,
-    amenities: [String],
-    price: Number,
-    location: {
-        type: { type: String },
-        coordinates: [Number]
-    }
+  name: String,
+  address: String,
+  phone: String,
+  website: String,
+  amenities: [String],
+  capacity: Number,
+  price: Number,
 });
-
-VenueSchema.index({ location: '2dsphere' });
 
 module.exports = mongoose.model('Venue', VenueSchema);

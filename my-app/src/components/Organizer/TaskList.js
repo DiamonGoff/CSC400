@@ -1,6 +1,5 @@
-// my-app/src/components/Organizer/TaskList.js
-
 import React from 'react';
+
 
 function TaskList({ tasks, updateTask, deleteTask }) {
   return (

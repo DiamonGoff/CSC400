@@ -1,0 +1,36 @@
+.venue-management {
+    padding: 20px;
+    background-color: #f9f9f9;
+  }
+  
+  .venue-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  
+  .venue-card {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    background-color: #fff;
+    width: 300px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .venue-card h3 {
+    margin-top: 0;
+  }
+  
+  .venue-card p {
+    margin: 5px 0;
+  }
+  
+  .venue-card a {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .venue-card a:hover {
+    text-decoration: underline;
+  }

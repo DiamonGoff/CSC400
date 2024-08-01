@@ -2,8 +2,9 @@ import React from 'react';
 import './AttendeeInterface.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGift, faShareAlt, faCommentDots, faEnvelope } from '@fortawesome/free-solid-svg-icons';
+import TravelSearch from './TravelSearch';
 
-function AttendeeInterface() {
+function AttendeeInterface({ eventLocation }) {
   return (
     <div className="attendee-background">
       <div className="container">
@@ -37,6 +38,9 @@ function AttendeeInterface() {
             <input type="text" placeholder="Your Comment" />
             <button type="submit">Submit Comment</button>
           </form>
+        </section>
+        <section>
+          <TravelSearch eventLocation={eventLocation} />
         </section>
         <footer>
           &copy; 2024 EventConnect. All rights reserved.
