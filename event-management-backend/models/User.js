@@ -18,6 +18,9 @@ const UserSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
+    verificationToken: {
+        type: String,
+    },
     contact: {
         type: String,
         default: '', // Optional: set default to empty string

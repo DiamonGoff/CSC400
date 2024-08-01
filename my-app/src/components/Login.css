@@ -48,3 +48,13 @@
   margin-top: 20px;
   color: red;
 }
+/* src/components/Login.css */
+.login-container {
+  /* Your existing styles */
+}
+
+.welcome-message {
+  color: green;
+  font-weight: bold;
+  margin-top: 10px;
+}

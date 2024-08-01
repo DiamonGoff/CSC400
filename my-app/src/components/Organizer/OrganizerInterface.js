@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './OrganizerInterface.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarPlus, faCalendarAlt, faSearch, faTasks, faUser, faBell, faChartBar } from '@fortawesome/free-solid-svg-icons';
@@ -6,8 +6,6 @@ import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import Select from 'react-select';
 import TaskManagement from './TaskManagement';
-import VenueCard from './VenueCard';
-import Map from './Map'; // Import Map component
 
 const amenitiesOptions = [
   { value: 'WiFi', label: 'WiFi' },
@@ -49,32 +47,46 @@ function OrganizerInterface() {
     if (!userId) {
       console.error('User ID is missing, redirecting to login');
       navigate('/login');
-    } else {
-      fetchProfile();
-      fetchNotifications();
-      fetchEvents();
     }
   }, [userId, navigate]);
 
-  const fetchProfile = async () => {
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await axios.get('http://localhost:3001/events');
+        setEvents(response.data);
+      } catch (error) {
+        console.error('There was an error fetching the events!', error);
+      }
+    };
+    if (userId) {
+      fetchEvents();
+    }
+  }, [userId]);
+
+  const fetchProfile = useCallback(async () => {
     try {
       console.log(`Fetching profile for userId: ${userId}`);
-      const response = await axios.get(`http://localhost:3001/profile/${userId}`);
+      const response = await axios.get(`http://localhost:3001/profile/${userId}`, {
+        withCredentials: true
+      });
       setProfile(response.data);
     } catch (error) {
       console.error('There was an error fetching the profile!', error);
     }
-  };
+  }, [userId]);
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     try {
       console.log(`Fetching notifications`);
-      const response = await axios.get('http://localhost:3001/notifications');
+      const response = await axios.get('http://localhost:3001/notifications', {
+        withCredentials: true
+      });
       setNotifications(response.data);
     } catch (error) {
       console.error('There was an error fetching the notifications!', error);
     }
-  };
+  }, []);
 
   const fetchEvents = async () => {
     try {
@@ -83,7 +95,7 @@ function OrganizerInterface() {
     } catch (error) {
       console.error('There was an error fetching the events!', error);
     }
-  };
+  }, [userId]);
 
   const handleCreateEvent = async (e) => {
     e.preventDefault();
@@ -95,7 +107,10 @@ function OrganizerInterface() {
         location: eventLocation,
         description: eventDescription,
         guestList: [],
-        specialRequirements: ''
+        specialRequirements: '',
+        userId: userId
+      }, {
+        withCredentials: true
       });
       setMessage('Event created successfully');
       setEventName('');
@@ -116,6 +131,8 @@ function OrganizerInterface() {
       await axios.post('http://localhost:3001/events/send-invite', {
         eventId,
         guests
+      }, {
+        withCredentials: true
       });
       setMessage('Invites sent successfully');
       setInvite('');
@@ -144,6 +161,8 @@ function OrganizerInterface() {
         time: eventTime,
         location: eventLocation,
         description: eventDescription
+      }, {
+        withCredentials: true
       });
       setEvents(events.map(event => (event._id === editEventId ? response.data : event)));
       setMessage('Event updated successfully');
@@ -161,7 +180,9 @@ function OrganizerInterface() {
 
   const handleEventDelete = async (eventId) => {
     try {
-      await axios.delete(`http://localhost:3001/events/${eventId}`);
+      await axios.delete(`http://localhost:3001/events/${eventId}`, {
+        withCredentials: true
+      });
       setEvents(events.filter(event => event._id !== eventId));
     } catch (error) {
       console.error('There was an error deleting the event!', error);
@@ -178,7 +199,8 @@ function OrganizerInterface() {
           capacity,
           amenities,
           budget
-        }
+        },
+        withCredentials: true
       });
       setVenues(response.data);
     } catch (error) {
@@ -195,18 +217,11 @@ function OrganizerInterface() {
     try {
       console.log(`Saving profile for userId: ${userId}`);
       const response = await axios.put(`http://localhost:3001/profile/${userId}`, profile);
-      setProfile(response.data); // Updated to use the response
       setMessage('Profile updated successfully');
     } catch (error) {
       setMessage('There was an error updating the profile!');
       console.error('Error updating profile:', error.message);
     }
-  };
-
-  const handlePlaceSelected = (place) => {
-    setEventLocation(place.formatted_address);
-    setMapCenter(place.geometry.location);
-    setMapZoom(15);
   };
 
   return (
@@ -277,6 +292,7 @@ function OrganizerInterface() {
             />
             <input 
               type="text" 
+              id="autocomplete" 
               placeholder="Location" 
               value={eventLocation} 
               onChange={(e) => setEventLocation(e.target.value)} 
@@ -326,7 +342,7 @@ function OrganizerInterface() {
         <section>
           <h2><FontAwesomeIcon icon={faSearch} /> Venue Search</h2>
           <form onSubmit={handleVenueSearch}>
-            <input type="text" placeholder="Location" value={eventLocation} onChange={(e) => setEventLocation(e.target.value)} required />
+            <input type="text" id="autocomplete" placeholder="Location" value={eventLocation} onChange={(e) => setEventLocation(e.target.value)} required />
             <input type="number" placeholder="Capacity" value={capacity} onChange={(e) => setCapacity(e.target.value)} required />
             <Select
               isMulti
