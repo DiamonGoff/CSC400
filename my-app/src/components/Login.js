@@ -1,4 +1,3 @@
-// src/components/Login.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../axiosInstance'; // Use the configured Axios instance
@@ -8,7 +7,6 @@ function Login({ setUser }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
-  const [welcomeMessage, setWelcomeMessage] = useState(''); // Add welcome message state
   const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
@@ -21,8 +19,7 @@ function Login({ setUser }) {
 
       setMessage(response.data.message);
       setUser(response.data.user);
-      localStorage.setItem('userId', response.data.user._id);
-      setWelcomeMessage(`Welcome back, ${response.data.user.name}!`); // Set the welcome message
+      localStorage.setItem('token', response.data.token); // Store the token in localStorage
       navigate('/'); // Navigate to home or any other route
     } catch (error) {
       setMessage(`Error logging in: ${error.response?.data?.message || error.message}`);
@@ -30,8 +27,8 @@ function Login({ setUser }) {
   };
 
   return (
-    <div className="login-container">
-      <h2>Login</h2>
+    <div className="register-box">
+      <h2 className="text-center">Login</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="email">Email:</label>
@@ -57,10 +54,9 @@ function Login({ setUser }) {
             required
           />
         </div>
-        <button type="submit">Login</button>
+        <input type="submit" value="Login" className="btn btn-primary btn-block" />
       </form>
       {message && <p>{message}</p>}
-      {welcomeMessage && <p className="welcome-message">{welcomeMessage}</p>} {/* Display the welcome message */}
     </div>
   );
 }

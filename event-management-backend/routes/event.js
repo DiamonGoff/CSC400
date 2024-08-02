@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const Event = require('../models/Event');
+const auth = require('../middleware/auth');
 const { sendEventInviteEmail } = require('../services/emailService');
-const authenticate = require('../middleware/authenticate');
 
-// Get all events for the logged-in user
-router.get('/', authenticate, async (req, res) => {
+// Get all events
+router.get('/', auth, async (req, res) => {
   try {
-    const events = await Event.find({ userId: req.user._id });
+    const events = await Event.find({ userId: req.user });
     res.json(events);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -15,7 +15,7 @@ router.get('/', authenticate, async (req, res) => {
 });
 
 // Create a new event
-router.post('/', authenticate, async (req, res) => {
+router.post('/', auth, async (req, res) => {
   const { name, date, time, location, description, guestList, specialRequirements } = req.body;
 
   try {
@@ -27,7 +27,7 @@ router.post('/', authenticate, async (req, res) => {
       description,
       guestList,
       specialRequirements,
-      userId: req.user._id
+      userId: req.user // Add userId to the event
     });
 
     const newEvent = await event.save();
@@ -38,9 +38,9 @@ router.post('/', authenticate, async (req, res) => {
 });
 
 // Update an event
-router.put('/:id', authenticate, async (req, res) => {
+router.put('/:id', auth, async (req, res) => {
   try {
-    const event = await Event.findOne({ _id: req.params.id, userId: req.user._id });
+    const event = await Event.findById(req.params.id);
     if (!event) {
       return res.status(404).json({ message: 'Event not found' });
     }
@@ -61,9 +61,9 @@ router.put('/:id', authenticate, async (req, res) => {
 });
 
 // Delete an event
-router.delete('/:id', authenticate, async (req, res) => {
+router.delete('/:id', auth, async (req, res) => {
   try {
-    const event = await Event.findOne({ _id: req.params.id, userId: req.user._id });
+    const event = await Event.findById(req.params.id);
     if (!event) {
       return res.status(404).json({ message: 'Event not found' });
     }
@@ -76,14 +76,15 @@ router.delete('/:id', authenticate, async (req, res) => {
 });
 
 // Send invite
-router.post('/send-invite', authenticate, async (req, res) => {
+router.post('/send-invite', auth, async (req, res) => {
   const { eventId, guests } = req.body;
   try {
-    const event = await Event.findOne({ _id: eventId, userId: req.user._id });
+    const event = await Event.findById(eventId);
     if (!event) {
       return res.status(404).json({ message: 'Event not found' });
     }
 
+    // Here you would implement the logic to send invites via email
     for (const guest of guests) {
       await sendEventInviteEmail(guest, event);
       event.guestList.push(guest);

@@ -1,5 +1,3 @@
-// my-app/src/components/CreateEvent.js
-
 import React, { useState } from 'react';
 import axios from 'axios';
 
@@ -21,12 +19,12 @@ const CreateEvent = ({ setMessage, setEvents, events }) => {
         description: eventDescription,
       });
       setMessage('Event created successfully');
+      setEvents([...events, response.data]);
       setEventName('');
       setEventDate('');
       setEventTime('');
       setEventLocation('');
       setEventDescription('');
-      setEvents([...events, response.data]);
     } catch (error) {
       setMessage('There was an error creating the event!');
       console.error('Error creating event:', error.message);

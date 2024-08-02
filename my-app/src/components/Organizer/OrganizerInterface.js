@@ -1,21 +1,49 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './OrganizerInterface.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendarPlus, faCalendarAlt, faSearch, faTasks, faUser, faBell, faChartBar } from '@fortawesome/free-solid-svg-icons';
+import { faCalendarPlus, faCalendarAlt, faSearch, faTasks, faUser } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import Select from 'react-select';
 import TaskManagement from './TaskManagement';
+import VenueCard from './VenueCard';
+import Map from './Map';
 
 const amenitiesOptions = [
   { value: 'WiFi', label: 'WiFi' },
   { value: 'Parking', label: 'Parking' },
   { value: 'Restrooms', label: 'Restrooms' },
   { value: 'AV Equipment', label: 'AV Equipment' },
-  // Add other amenities options here
+  { value: 'Stage', label: 'Stage' },
+  { value: 'Dance Floor', label: 'Dance Floor' },
+  { value: 'Outdoor Area', label: 'Outdoor Area' },
+  { value: 'Catering Services', label: 'Catering Services' },
+  { value: 'Bar Services', label: 'Bar Services' },
+  { value: 'Tables and Chairs', label: 'Tables and Chairs' },
+  { value: 'Linens', label: 'Linens' },
+  { value: 'Decorations', label: 'Decorations' },
+  { value: 'Lighting', label: 'Lighting' },
+  { value: 'DJ or Live Music', label: 'DJ or Live Music' },
+  { value: 'Photo Booth', label: 'Photo Booth' },
+  { value: 'Projector and Screen', label: 'Projector and Screen' },
+  { value: 'Private Rooms', label: 'Private Rooms' },
+  { value: 'Kids Play Area', label: 'Kids Play Area' },
+  { value: 'Air Conditioning/Heating', label: 'Air Conditioning/Heating' },
+  { value: 'Accessible Facilities', label: 'Accessible Facilities (Wheelchair Access)' },
+  { value: 'Coat Check', label: 'Coat Check' },
+  { value: 'Security Services', label: 'Security Services' },
+  { value: 'Sound System', label: 'Sound System' },
+  { value: 'Games and Entertainment', label: 'Games and Entertainment' },
+  { value: 'Pet-Friendly', label: 'Pet-Friendly' },
+  { value: 'Swimming Pool', label: 'Swimming Pool' },
+  { value: 'Spa Services', label: 'Spa Services' },
+  { value: 'Backup Power Supply', label: 'Backup Power Supply' },
+  { value: 'Fireplace', label: 'Fireplace' },
+  { value: 'Smoking Area', label: 'Smoking Area' },
+  { value: 'Food', label: 'Food' }
 ];
 
-function OrganizerInterface() {
+function OrganizerInterface({ user, setUser }) {
   const [eventName, setEventName] = useState('');
   const [eventDate, setEventDate] = useState('');
   const [eventTime, setEventTime] = useState('');
@@ -29,16 +57,9 @@ function OrganizerInterface() {
   const [events, setEvents] = useState([]);
   const [invite, setInvite] = useState('');
   const [editEventId, setEditEventId] = useState(null);
-
-  // Profile State
-  const [profile, setProfile] = useState({ name: '', contact: '', preferences: '' });
-
-  // Notifications State
-  const [notifications, setNotifications] = useState([]);
-
-  // Map State
   const [mapCenter, setMapCenter] = useState({ lat: 37.7749, lng: -122.4194 });
   const [mapZoom, setMapZoom] = useState(12);
+  const [favoriteVenues, setFavoriteVenues] = useState([]);
 
   const navigate = useNavigate();
   const userId = localStorage.getItem('userId');
@@ -47,6 +68,8 @@ function OrganizerInterface() {
     if (!userId) {
       console.error('User ID is missing, redirecting to login');
       navigate('/login');
+    } else {
+      fetchUser();
     }
   }, [userId, navigate]);
 
@@ -64,38 +87,22 @@ function OrganizerInterface() {
     }
   }, [userId]);
 
-  const fetchProfile = useCallback(async () => {
+  const fetchUser = useCallback(async () => {
     try {
-      console.log(`Fetching profile for userId: ${userId}`);
-      const response = await axios.get(`http://localhost:3001/profile/${userId}`, {
+      const response = await axios.get(`http://localhost:3001/users/${userId}`, {
         withCredentials: true
       });
-      setProfile(response.data);
+      setUser(response.data);
     } catch (error) {
-      console.error('There was an error fetching the profile!', error);
+      console.error('There was an error fetching the user!', error);
     }
-  }, [userId]);
+  }, [userId, setUser]);
 
-  const fetchNotifications = useCallback(async () => {
-    try {
-      console.log(`Fetching notifications`);
-      const response = await axios.get('http://localhost:3001/notifications', {
-        withCredentials: true
-      });
-      setNotifications(response.data);
-    } catch (error) {
-      console.error('There was an error fetching the notifications!', error);
-    }
-  }, []);
-
-  const fetchEvents = async () => {
-    try {
-      const response = await axios.get('http://localhost:3001/events');
-      setEvents(response.data);
-    } catch (error) {
-      console.error('There was an error fetching the events!', error);
-    }
-  }, [userId]);
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setUser(null);
+    navigate('/login');
+  };
 
   const handleCreateEvent = async (e) => {
     e.preventDefault();
@@ -208,60 +215,31 @@ function OrganizerInterface() {
     }
   };
 
-  const handleProfileSave = async (e) => {
-    e.preventDefault();
-    if (!userId) {
-      setMessage('User ID is missing. Please log in again.');
-      return;
-    }
-    try {
-      console.log(`Saving profile for userId: ${userId}`);
-      const response = await axios.put(`http://localhost:3001/profile/${userId}`, profile);
-      setMessage('Profile updated successfully');
-    } catch (error) {
-      setMessage('There was an error updating the profile!');
-      console.error('Error updating profile:', error.message);
-    }
+  const handlePlaceSelected = (place) => {
+    setEventLocation(place.formatted_address);
+    setMapCenter(place.geometry.location);
+    setMapZoom(15);
+  };
+
+  const handleFavoriteVenue = (venue) => {
+    setFavoriteVenues(prevFavorites => {
+      const isAlreadyFavorite = prevFavorites.some(favVenue => favVenue._id === venue._id);
+      if (isAlreadyFavorite) {
+        return prevFavorites.filter(favVenue => favVenue._id !== venue._id);
+      }
+      return [...prevFavorites, venue];
+    });
   };
 
   return (
     <div className="organizer-background">
       <div className="container">
-        <header className="header">
-          <h1>Event Organizer Interface</h1>
-        </header>
-        <nav>
+        <nav className="organizer-nav">
           <Link to="/organizer/profile" className="btn"><FontAwesomeIcon icon={faUser} /> Profile</Link>
           <Link to="/organizer/venue-management" className="btn"><FontAwesomeIcon icon={faSearch} /> Venue Management</Link>
           <Link to="/organizer/task-management" className="btn"><FontAwesomeIcon icon={faTasks} /> Task Management</Link>
-          <Link to="/organizer/notifications" className="btn"><FontAwesomeIcon icon={faBell} /> Notifications</Link>
-          <Link to="/organizer/analytics" className="btn"><FontAwesomeIcon icon={faChartBar} /> Analytics</Link>
+          
         </nav>
-
-        {/* Profile Section */}
-        <section>
-          <h2>Profile Management</h2>
-          <form onSubmit={handleProfileSave}>
-            <input
-              type="text"
-              placeholder="Name"
-              value={profile.name}
-              onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-            />
-            <input
-              type="text"
-              placeholder="Contact Information"
-              value={profile.contact}
-              onChange={(e) => setProfile({ ...profile, contact: e.target.value })}
-            />
-            <textarea
-              placeholder="Event Preferences"
-              value={profile.preferences}
-              onChange={(e) => setProfile({ ...profile, preferences: e.target.value })}
-            ></textarea>
-            <button className="btn">Save Profile</button>
-          </form>
-        </section>
 
         {/* Event Management Section */}
         <section>
@@ -292,7 +270,6 @@ function OrganizerInterface() {
             />
             <input 
               type="text" 
-              id="autocomplete" 
               placeholder="Location" 
               value={eventLocation} 
               onChange={(e) => setEventLocation(e.target.value)} 
@@ -329,10 +306,6 @@ function OrganizerInterface() {
                 <button className="btn" onClick={() => handleInviteSend(event._id)}>Send Invites</button>
                 <button className="btn" onClick={() => handleEventEdit(event._id)}>Edit</button>
                 <button className="btn" onClick={() => handleEventDelete(event._id)}>Delete</button>
-                {/* Task Management Section */}
-                <section>
-                  <TaskManagement eventId={event._id} />
-                </section>
               </div>
             ))}
           </div>
@@ -360,26 +333,16 @@ function OrganizerInterface() {
             <Map center={mapCenter} zoom={mapZoom} onPlaceSelected={handlePlaceSelected} />
             <div className="venue-list">
               {venues.map((venue, index) => (
-                <VenueCard key={index} venue={venue} />
+                <VenueCard key={index} venue={venue} onFavoriteChange={() => handleFavoriteVenue(venue)} />
               ))}
             </div>
           </div>
         </section>
 
-        {/* Notifications Section */}
+        {/* Task Management Section */}
         <section>
-          <h2><FontAwesomeIcon icon={faBell} /> Notifications</h2>
-          <ul>
-            {notifications.map(notification => (
-              <li key={notification._id}>{notification.message}</li>
-            ))}
-          </ul>
-        </section>
-
-        {/* Analytics and Reporting Section */}
-        <section>
-          <h2><FontAwesomeIcon icon={faChartBar} /> Analytics and Reporting</h2>
-          <p>Analytics and reporting will be implemented here...</p>
+          <h2><FontAwesomeIcon icon={faTasks} /> Task Management</h2>
+          <TaskManagement />
         </section>
 
         <footer>

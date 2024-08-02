@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
+const passport = require('passport');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { sendVerificationEmail } = require('../services/emailService');
 const crypto = require('crypto');
@@ -78,11 +80,39 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Email not verified' });
     }
 
-    req.session.userId = user._id;
-    res.json({ message: 'Login successful', user: { name: user.name, email: user.email } });
+    const token = jwt.sign({ _id: user._id, name: user.name, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+    res.json({ message: 'Login successful', user: { _id: user._id, name: user.name, email: user.email }, token });
   } catch (error) {
     res.status(500).json({ message: 'Error logging in', error: error.message });
   }
 });
+
+// Logout user
+router.post('/logout', (req, res) => {
+  res.clearCookie('token');
+  res.status(200).json({ message: 'Logged out successfully' });
+});
+
+// Facebook auth routes
+router.get('/facebook', passport.authenticate('facebook', { scope: ['email'] }));
+
+router.get('/facebook/callback', 
+  passport.authenticate('facebook', { failureRedirect: '/login' }),
+  (req, res) => {
+    // Successful authentication, redirect home.
+    res.redirect('/');
+  });
+
+// Twitter auth routes
+router.get('/twitter', passport.authenticate('twitter'));
+
+router.get('/twitter/callback', 
+  passport.authenticate('twitter', { failureRedirect: '/login' }),
+  (req, res) => {
+    // Successful authentication, redirect home.
+    res.redirect('/');
+  });
 
 module.exports = router;

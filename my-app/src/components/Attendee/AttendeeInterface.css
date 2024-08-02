@@ -102,28 +102,21 @@ form button:hover {
   background: #4A10BB;
 }
 
-.social-btn {
+.social-btn.facebook {
   background: #4267B2;
   margin: 10px 0;
 }
 
-.social-btn:hover {
+.social-btn.facebook:hover {
   background: #365899;
 }
 
-.facebook {
-  background: #4267B2;
-}
-
-.twitter {
+.social-btn.twitter {
   background: #1DA1F2;
+  margin: 10px 0;
 }
 
-.facebook:hover {
-  background: #365899;
-}
-
-.twitter:hover {
+.social-btn.twitter:hover {
   background: #0D95E8;
 }
 

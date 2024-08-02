@@ -5,6 +5,20 @@ import { faGift, faShareAlt, faCommentDots, faEnvelope } from '@fortawesome/free
 import TravelSearch from './TravelSearch';
 
 function AttendeeInterface({ eventLocation }) {
+  const handleSocialShare = (platform) => {
+    const url = window.location.href;
+    const text = 'Check out this birthday event!';
+    let shareUrl = '';
+
+    if (platform === 'facebook') {
+      shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+    } else if (platform === 'twitter') {
+      shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
+    }
+
+    window.open(shareUrl, '_blank');
+  };
+
   return (
     <div className="attendee-background">
       <div className="container">
@@ -28,8 +42,8 @@ function AttendeeInterface({ eventLocation }) {
         <section>
           <h2><FontAwesomeIcon icon={faShareAlt} /> Social Interaction</h2>
           <p>Share the event details on social media and interact with other attendees.</p>
-          <button className="btn social-btn facebook">Share on Facebook</button>
-          <button className="btn social-btn twitter">Share on X</button>
+          <button className="btn social-btn facebook" onClick={() => handleSocialShare('facebook')}>Share on Facebook</button>
+          <button className="btn social-btn twitter" onClick={() => handleSocialShare('twitter')}>Share on X</button>
         </section>
         <section>
           <h2><FontAwesomeIcon icon={faCommentDots} /> Comments</h2>

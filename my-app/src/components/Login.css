@@ -1,16 +1,14 @@
-/* src/components/Login.css */
-.login-box {
+.register-box {
   max-width: 400px;
   margin: 100px auto; /* Increased margin to avoid overlap with header */
   padding: 20px;
   border: 1px solid #ccc;
-  border-radius: 5px;
+  border-radius: 4px;
   background-color: #f9f9f9;
 }
 
-.login-box h2 {
+.text-center {
   text-align: center;
-  margin-bottom: 20px;
 }
 
 .form-group {
@@ -31,30 +29,14 @@
 .btn {
   width: 100%;
   padding: 10px;
-  background-color: #4CAF50;
+  background-color: #5A20CB;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 4px;
   cursor: pointer;
   margin-top: 10px;
 }
 
 .btn:hover {
-  background-color: #45a049;
-}
-
-.message {
-  text-align: center;
-  margin-top: 20px;
-  color: red;
-}
-/* src/components/Login.css */
-.login-container {
-  /* Your existing styles */
-}
-
-.welcome-message {
-  color: green;
-  font-weight: bold;
-  margin-top: 10px;
+  background-color: #0056b3;
 }

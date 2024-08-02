@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+// src/components/Organizer/TaskForm.js
 
+import React, { useState } from 'react';
 
 function TaskForm({ addTask }) {
   const [title, setTitle] = useState('');
@@ -7,18 +8,19 @@ function TaskForm({ addTask }) {
   const [dueDate, setDueDate] = useState('');
   const [priority, setPriority] = useState('Medium');
   const [status, setStatus] = useState('Not Started');
-  const [assignedTo, setAssignedTo] = useState('');
+  
+  // Assuming these values are known and static, you can set them here
+  const assignedUser = "669527daca5461643c8e627c"; // Replace with actual value
+  const eventId = "6698538210e34f47c1699c35"; // Replace with actual value
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const taskData = { title, description, dueDate, priority, status, assignedTo };
-    addTask(taskData);
+    addTask({ title, description, dueDate, priority, status, assignedUser, eventId });
     setTitle('');
     setDescription('');
     setDueDate('');
     setPriority('Medium');
     setStatus('Not Started');
-    setAssignedTo('');
   };
 
   return (
@@ -50,10 +52,6 @@ function TaskForm({ addTask }) {
           <option value="In Progress">In Progress</option>
           <option value="Completed">Completed</option>
         </select>
-      </div>
-      <div>
-        <label>Assigned To</label>
-        <input type="text" value={assignedTo} onChange={(e) => setAssignedTo(e.target.value)} />
       </div>
       <button type="submit">Add Task</button>
     </form>

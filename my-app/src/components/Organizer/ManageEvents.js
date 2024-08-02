@@ -1,5 +1,3 @@
-// my-app/src/components/ManageEvents.js
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -68,6 +66,16 @@ const ManageEvents = ({ setMessage, events, setEvents }) => {
           <button className="btn" onClick={() => handleEventDelete(event._id)}>Delete</button>
         </div>
       ))}
+      {editEventId && (
+        <form onSubmit={handleEventUpdate}>
+          <input type="text" placeholder="Event Name" value={eventName} onChange={(e) => setEventName(e.target.value)} required />
+          <input type="date" placeholder="Date" value={eventDate} onChange={(e) => setEventDate(e.target.value)} required />
+          <input type="time" placeholder="Time" value={eventTime} onChange={(e) => setEventTime(e.target.value)} required />
+          <input type="text" placeholder="Location" value={eventLocation} onChange={(e) => setEventLocation(e.target.value)} required />
+          <textarea placeholder="Description" value={eventDescription} onChange={(e) => setEventDescription(e.target.value)} required ></textarea>
+          <button type="submit" className="btn">Update Event</button>
+        </form>
+      )}
     </div>
   );
 };

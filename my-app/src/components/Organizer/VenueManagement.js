@@ -3,26 +3,28 @@ import axios from 'axios';
 import VenueCard from './VenueCard';
 import './VenueManagement.css';
 
-const VenueManagement = () => {
+const VenueManagement = ({ user }) => {
   const [favorites, setFavorites] = useState([]);
 
   const fetchFavorites = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/favorites');
-      console.log('Fetched Favorites:', response.data);
-      setFavorites(response.data);
+      const response = await axios.get(`http://localhost:3001/users/${user._id}/favorites`);
+      console.log('Fetched Favorites:', response.data.favoriteVenues);
+      setFavorites(response.data.favoriteVenues);
     } catch (error) {
       console.error('There was an error fetching favorite venues!', error);
     }
   };
 
   useEffect(() => {
-    fetchFavorites();
-  }, []);
+    if (user) {
+      fetchFavorites();
+    }
+  }, [user]);
 
   const handleDeleteClick = async (venueId) => {
     try {
-      await axios.delete(`http://localhost:3001/favorites/${venueId}`);
+      await axios.delete(`http://localhost:3001/users/${user._id}/favorites/${venueId}`);
       fetchFavorites(); // Refresh the list after deletion
     } catch (error) {
       console.error('Failed to delete favorite venue', error);
@@ -34,15 +36,13 @@ const VenueManagement = () => {
       <h2>Favorite Venues</h2>
       <div className="venue-list">
         {favorites.length > 0 ? (
-          favorites.map((favorite) => (
+          favorites.map((venue) => (
             <VenueCard
-              key={favorite.venue._id}
-              venue={{
-                ...favorite.venue,
-                isFavorite: true,
-              }}
+              key={venue._id}
+              venue={venue}
+              isFavorite={true}
               onFavoriteChange={fetchFavorites}
-              handleDeleteClick={() => handleDeleteClick(favorite.venue._id)}
+              handleDeleteClick={() => handleDeleteClick(venue._id)}
             />
           ))
         ) : (

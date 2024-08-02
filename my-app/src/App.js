@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import OrganizerInterface from './components/Organizer/OrganizerInterface';
 import AttendeeInterface from './components/Attendee/AttendeeInterface';
@@ -9,20 +9,37 @@ import FeaturesSection from './components/FeaturesSection';
 import Footer from './components/Footer';
 import Register from './components/Register';
 import Profile from './components/Profile'; // Import Profile component
+import axiosInstance from './axiosInstance'; // Import the configured Axios instance
 import './App.css'; // Import the CSS file for styling
 
 function App() {
   const [user, setUser] = useState(null);
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      axiosInstance.get('/auth/verify-token', {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(response => {
+        setUser(response.data.user);
+      })
+      .catch(error => {
+        console.error('Token verification failed', error);
+        localStorage.removeItem('token');
+      });
+    }
+  }, []);
+
   return (
     <Router>
       <div className="App">
-        <Header user={user} />
+        <Header user={user} setUser={setUser} /> {/* Pass setUser to Header */}
         <Routes>
           <Route path="/login" element={<Login setUser={setUser} />} />
           <Route path="/organizer" element={<OrganizerInterface user={user} setUser={setUser} />} />
-          <Route path="/organizer/profile" element={<Profile user={user} setUser={setUser} />} />
-          <Route path="/attendee" element={<AttendeeInterface />} />
+          <Route path="/organizer/profile" element={<Profile user={user} />} />
+          <Route path="/attendee" element={<AttendeeInterface eventLocation="37.7749,-122.4194" />} /> {/* Pass eventLocation prop */}
           <Route path="/register" element={<Register />} />
           <Route path="/" element={
             <>

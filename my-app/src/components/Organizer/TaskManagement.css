@@ -1,40 +1,47 @@
+/* TaskManagement.css */
+
 .task-management {
+  background: rgba(255, 255, 255, 0.9); /* Transparent white background for consistency */
+  margin: 20px 0;
   padding: 20px;
-  background-color: #f9f9f9;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .task-management h2 {
-  color: #612486;
-  margin-bottom: 20px;
-  text-align: center;
+  font-size: 2rem;
+  color: #5A20CB; /* Match the header color of other sections */
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
 }
 
 .task-management form {
-  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
 }
 
 .task-management input,
 .task-management textarea,
 .task-management select,
 .task-management button {
-  width: 100%;
+  margin: 10px 0;
   padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #ddd;
+  font-size: 1rem;
   border-radius: 4px;
+  border: 1px solid #ccc;
 }
 
 .task-management button {
-  background-color: #612486;
+  background: #5A20CB;
   color: white;
+  border: none;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background 0.3s ease;
 }
 
 .task-management button:hover {
-  background-color: #5a1486;
+  background: #4A10BB; /* Match the hover color of other buttons */
 }
 
 .filter-section {
@@ -59,7 +66,7 @@
   padding: 15px;
   margin-bottom: 15px;
   border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Match the box-shadow of other sections */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -71,14 +78,14 @@
 
 .task-list .task button {
   margin-left: 10px;
-  background-color: #612486;
+  background-color: #5A20CB; /* Match the button color of other sections */
   color: white;
   cursor: pointer;
   transition: background-color 0.3s;
 }
 
 .task-list .task button:hover {
-  background-color: #5a1486;
+  background-color: #4A10BB; /* Match the hover color of other buttons */
 }
 
 .task-list .task-details {

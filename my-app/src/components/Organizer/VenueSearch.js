@@ -60,7 +60,7 @@ const VenueSearch = ({ setVenues }) => {
         <Map center={center} zoom={12} />
         <div className="venue-list">
           {venues.map((venue) => (
-            <VenueCard key={venue.name} venue={venue} />
+            <VenueCard key={venue._id} venue={venue} />
           ))}
         </div>
       </div>

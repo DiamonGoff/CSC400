@@ -28,11 +28,6 @@ const eventSchema = new mongoose.Schema({
   specialRequirements: {
     type: String,
     default: ''
-  },
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
   }
 });
 

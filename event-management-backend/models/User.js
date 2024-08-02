@@ -3,12 +3,12 @@ const mongoose = require('mongoose');
 const UserSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true,
+        required: true, // Ensure the name is required
     },
     email: {
         type: String,
         required: true,
-        unique: true,
+        unique: true, // Ensure email is unique
     },
     password: {
         type: String,
@@ -18,17 +18,16 @@ const UserSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
-    verificationToken: {
+    facebookId: {
         type: String,
+        unique: true,
+        sparse: true, // Allows null values
     },
-    contact: {
+    twitterId: {
         type: String,
-        default: '', // Optional: set default to empty string
+        unique: true,
+        sparse: true, // Allows null values
     },
-    preferences: {
-        type: String,
-        default: '', // Optional: set default to empty string
-    }
 });
 
 module.exports = mongoose.model('User', UserSchema);

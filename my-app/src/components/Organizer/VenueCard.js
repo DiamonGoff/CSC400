@@ -3,39 +3,48 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar, faTrash } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 
-const VenueCard = ({ venue, onFavoriteChange, handleDeleteClick }) => {
+const VenueCard = ({ venue, onFavoriteChange }) => {
   const [isFavorite, setIsFavorite] = useState(venue.isFavorite);
 
   useEffect(() => {
-    console.log('VenueCard mounted with venue:', venue);
     setIsFavorite(venue.isFavorite); // Ensure the favorite state is in sync with the prop
   }, [venue]);
 
   const handleFavoriteClick = async () => {
-    if (!venue || !venue.name) {
-      console.error('venue.name is undefined or venue is not defined');
+    if (!venue || !venue._id) {
+      console.error('venue._id is undefined or venue is not defined');
       return;
     }
-    console.log(`Attempting to update favorite status for venue: ${venue.name}`);
     const newFavoriteStatus = !isFavorite;
     setIsFavorite(newFavoriteStatus);
     try {
       if (newFavoriteStatus) {
-        console.log(`Adding favorite venue: ${venue.name}`);
-        await axios.post('http://localhost:3001/favorites/add', { venueName: venue.name });
+        await axios.post('http://localhost:3001/favorites/add', { venueId: venue._id });
       } else {
-        console.log(`Removing favorite venue: ${venue.name}`);
-        await axios.post('http://localhost:3001/favorites/remove', { venueName: venue.name });
+        await axios.post('http://localhost:3001/favorites/remove', { venueId: venue._id });
       }
       onFavoriteChange();
     } catch (error) {
       console.error('Failed to update favorite status', error);
+      setIsFavorite(!newFavoriteStatus); // Revert state on error
     }
   };
 
-  if (!venue || !venue.name) {
-    console.error('Invalid venue data:', venue); // Log the invalid venue data
-    return <div>Invalid venue data</div>;
+  const handleDeleteClick = async () => {
+    if (!venue || !venue._id) {
+      console.error('venue._id is undefined or venue is not defined');
+      return;
+    }
+    try {
+      await axios.delete(`http://localhost:3001/favorites/${venue._id}`);
+      onFavoriteChange();
+    } catch (error) {
+      console.error('Failed to delete favorite venue', error);
+    }
+  };
+
+  if (!venue) {
+    return <div>Loading...</div>;
   }
 
   return (
@@ -47,6 +56,7 @@ const VenueCard = ({ venue, onFavoriteChange, handleDeleteClick }) => {
       <p><strong>Price:</strong> {venue.price || 'N/A'}</p>
       <p><strong>Phone:</strong> {venue.phone || 'N/A'}</p>
       <p><strong>Website:</strong> <a href={venue.website || '#'} target="_blank" rel="noopener noreferrer">{venue.website || 'N/A'}</a></p>
+
       <FontAwesomeIcon
         icon={faStar}
         onClick={handleFavoriteClick}
@@ -54,7 +64,7 @@ const VenueCard = ({ venue, onFavoriteChange, handleDeleteClick }) => {
       />
       <FontAwesomeIcon
         icon={faTrash}
-        onClick={() => handleDeleteClick(venue._id)}
+        onClick={handleDeleteClick}
         style={{ color: 'red', cursor: 'pointer', marginLeft: '10px' }}
       />
     </div>
