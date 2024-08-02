@@ -8,7 +8,7 @@ const MongoStore = require('connect-mongo');
 const dotenv = require('dotenv');
 const passport = require('./config/passport'); // Import passport configuration
 
-dotenv.config(); // Ensure this is at the top
+dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3001;

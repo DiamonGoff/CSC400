@@ -4,18 +4,22 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGift, faShareAlt, faCommentDots, faEnvelope } from '@fortawesome/free-solid-svg-icons';
 import TravelSearch from './TravelSearch';
 
+// Functional component to display the attendee interface
 function AttendeeInterface({ eventLocation }) {
+  // Function to handle social media sharing
   const handleSocialShare = (platform) => {
-    const url = window.location.href;
-    const text = 'Check out this birthday event!';
+    const url = window.location.href; // Current page URL
+    const text = 'Check out this birthday event!'; // Default share text
     let shareUrl = '';
 
+    // Construct share URL based on the platform
     if (platform === 'facebook') {
       shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
     } else if (platform === 'twitter') {
       shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
     }
 
+    // Open share URL in a new tab
     window.open(shareUrl, '_blank');
   };
 
@@ -54,6 +58,7 @@ function AttendeeInterface({ eventLocation }) {
           </form>
         </section>
         <section>
+          {/* Travel search section, passing event location as a prop */}
           <TravelSearch eventLocation={eventLocation} />
         </section>
         <footer>

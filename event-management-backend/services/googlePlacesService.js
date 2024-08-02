@@ -11,7 +11,7 @@ const searchPlaces = async (query) => {
         query: query,
         key: API_KEY,
       },
-      timeout: 1000, // milliseconds
+      timeout: 1000, 
     });
     return response.data.results;
   } catch (error) {

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const ManageEvents = ({ setMessage, events, setEvents }) => {
+  // Local state for form inputs and editing
   const [editEventId, setEditEventId] = useState(null);
   const [eventName, setEventName] = useState('');
   const [eventDate, setEventDate] = useState('');
@@ -11,6 +12,7 @@ const ManageEvents = ({ setMessage, events, setEvents }) => {
 
   useEffect(() => {
     if (editEventId) {
+      // Find and set the event details for editing
       const event = events.find(event => event._id === editEventId);
       setEventName(event.name);
       setEventDate(event.date);
@@ -20,9 +22,11 @@ const ManageEvents = ({ setMessage, events, setEvents }) => {
     }
   }, [editEventId, events]);
 
+  // Handler for updating an event
   const handleEventUpdate = async (e) => {
     e.preventDefault();
     try {
+      // API call to update the event
       const response = await axios.put(`http://localhost:3001/events/${editEventId}`, {
         name: eventName,
         date: eventDate,
@@ -30,6 +34,7 @@ const ManageEvents = ({ setMessage, events, setEvents }) => {
         location: eventLocation,
         description: eventDescription,
       });
+      // Update events state and reset form inputs
       setEvents(events.map(event => (event._id === editEventId ? response.data : event)));
       setMessage('Event updated successfully');
       setEditEventId(null);
@@ -39,14 +44,18 @@ const ManageEvents = ({ setMessage, events, setEvents }) => {
       setEventLocation('');
       setEventDescription('');
     } catch (error) {
+      // Handle errors
       setMessage('There was an error updating the event!');
       console.error('Error updating event:', error.message);
     }
   };
 
+  // Handler for deleting an event
   const handleEventDelete = async (eventId) => {
     try {
+      // API call to delete the event
       await axios.delete(`http://localhost:3001/events/${eventId}`);
+      // Update events state
       setEvents(events.filter(event => event._id !== eventId));
     } catch (error) {
       console.error('There was an error deleting the event!', error);
@@ -67,6 +76,7 @@ const ManageEvents = ({ setMessage, events, setEvents }) => {
         </div>
       ))}
       {editEventId && (
+        // Form for updating an existing event
         <form onSubmit={handleEventUpdate}>
           <input type="text" placeholder="Event Name" value={eventName} onChange={(e) => setEventName(e.target.value)} required />
           <input type="date" placeholder="Date" value={eventDate} onChange={(e) => setEventDate(e.target.value)} required />

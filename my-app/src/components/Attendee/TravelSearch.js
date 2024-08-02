@@ -4,6 +4,7 @@ import './TravelSearch.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearchLocation } from '@fortawesome/free-solid-svg-icons';
 
+// Predefined transportation options
 const transportationOptions = [
   { value: 'bus_station', label: 'Bus Station' },
   { value: 'subway_station', label: 'Subway Station' },
@@ -14,34 +15,38 @@ const transportationOptions = [
   { value: 'car_rental', label: 'Car Rental' }
 ];
 
+// Functional component to handle travel search functionality
 const TravelSearch = ({ eventLocation }) => {
-  const [date, setDate] = useState('');
-  const [transportationType, setTransportationType] = useState(transportationOptions[0].value);
-  const [transportationResults, setTransportationResults] = useState([]);
-  const [lodgingResults, setLodgingResults] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [date, setDate] = useState(''); // State for travel date input
+  const [transportationType, setTransportationType] = useState(transportationOptions[0].value); // State for selected transportation type
+  const [transportationResults, setTransportationResults] = useState([]); // State for storing transportation search results
+  const [lodgingResults, setLodgingResults] = useState([]); // State for storing lodging search results
+  const [loading, setLoading] = useState(false); // State for loading status
+  const [error, setError] = useState(''); // State for error message
 
+  // Function to handle search form submission
   const handleSearch = async (e) => {
-    e.preventDefault();
-    setError('');
-    setTransportationResults([]);
-    setLodgingResults([]);
-    setLoading(true);
+    e.preventDefault(); // Prevent default form submission
+    setError(''); // Reset error state
+    setTransportationResults([]); // Reset transportation results
+    setLodgingResults([]); // Reset lodging results
+    setLoading(true); // Set loading state to true
     try {
+      // Make an API request to the backend for travel search
       const response = await axios.get(`http://localhost:3001/travelSearch`, {
         params: {
-          location: eventLocation, // Format: "latitude,longitude"
-          type: transportationType
+          location: eventLocation, // Event location in "latitude,longitude" format
+          type: transportationType // Selected transportation type
         },
       });
+      // Update state with the fetched results
       setTransportationResults(response.data.transportation);
       setLodgingResults(response.data.lodging);
     } catch (error) {
-      console.error('Error fetching data from backend', error);
-      setError('An error occurred while fetching travel options.');
+      console.error('Error fetching data from backend', error); // Log error to console
+      setError('An error occurred while fetching travel options.'); // Set error message
     } finally {
-      setLoading(false);
+      setLoading(false); // Set loading state to false
     }
   };
 
@@ -65,8 +70,8 @@ const TravelSearch = ({ eventLocation }) => {
         </select>
         <button type="submit">Search</button>
       </form>
-      {error && <p className="error">{error}</p>}
-      {loading && <p className="loading">Loading...</p>}
+      {error && <p className="error">{error}</p>} {/* Display error message if any */}
+      {loading && <p className="loading">Loading...</p>} {/* Display loading message if loading */}
       <div className="results">
         <h3>Transportation Options</h3>
         {transportationResults.length > 0 ? (

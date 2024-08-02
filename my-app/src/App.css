@@ -1,13 +1,10 @@
-/* App.css */
-
-/* Reset some default browser styles */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* Set global font styles */
+
 body {
   font-family: Arial, sans-serif;
   line-height: 1.6;
@@ -15,7 +12,7 @@ body {
   color: #333;
 }
 
-/* Add smooth scrolling */
+/*smooth scrolling*/
 html {
   scroll-behavior: smooth;
 }
@@ -56,8 +53,8 @@ html {
 /* Main content styles */
 main {
   padding: 1rem;
-  margin-top: 70px; /* Adjust this value to ensure the content is not hidden behind the fixed header */
-  text-align: center; /* Center all text in main content */
+  margin-top: 70px; 
+  text-align: center; 
 }
 
 /* Welcome Section */
@@ -67,7 +64,7 @@ main {
   margin-bottom: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  text-align: center; /* Center text in welcome section */
+  text-align: center; 
 }
 
 .welcome-section .btn {
@@ -87,7 +84,7 @@ main {
 
 /* Image Section */
 .image-section {
-  text-align: center; /* Center text in image section */
+  text-align: center; 
   margin: 20px 0;
 }
 
@@ -105,7 +102,7 @@ main {
   margin-top: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  text-align: center; /* Center text in features section */
+  text-align: center; 
 }
 
 .features-section h2 {
@@ -127,7 +124,7 @@ main {
   margin-top: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  text-align: center; /* Center text in about section */
+  text-align: center; 
 }
 
 .about-section h2 {
@@ -149,7 +146,7 @@ main {
   margin-top: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  text-align: center; /* Center text in testimonials section */
+  text-align: center;
 }
 
 .testimonials-section h2 {
@@ -220,7 +217,7 @@ footer {
 
 /* Specific Styles for OrganizerInterface */
 .container {
-  margin-top: 100px; /* Adjust this value to ensure the content is not hidden behind the fixed header */
+  margin-top: 100px; 
 }
 
-/* Update any other specific styles as needed */
+

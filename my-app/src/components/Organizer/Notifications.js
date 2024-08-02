@@ -6,12 +6,13 @@ const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
+    // Fetch notifications from the server
     const fetchNotifications = async () => {
       try {
         const response = await axios.get('http://localhost:3001/notifications', {
-          withCredentials: true
+          withCredentials: true // Include credentials with the request
         });
-        setNotifications(response.data);
+        setNotifications(response.data); // Update state with the fetched notifications
       } catch (error) {
         console.error('Error fetching notifications', error);
       }
@@ -25,8 +26,8 @@ const Notifications = () => {
       <ul>
         {notifications.map((notification) => (
           <li key={notification._id}>
-            <span>{new Date(notification.timestamp).toLocaleString()}</span>
-            <p>{notification.message}</p>
+            <span>{new Date(notification.timestamp).toLocaleString()}</span> {/* Display the timestamp */}
+            <p>{notification.message}</p> {/* Display the notification message */}
           </li>
         ))}
       </ul>

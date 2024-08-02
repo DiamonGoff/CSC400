@@ -1,4 +1,3 @@
-// components/Map.js
 import React, { useEffect, useRef } from 'react';
 
 function Map({ center, zoom, onPlaceSelected }) {
@@ -9,32 +8,36 @@ function Map({ center, zoom, onPlaceSelected }) {
   const infoWindowInstance = useRef();
 
   useEffect(() => {
+    // Check if Google Maps API is loaded
     if (!window.google || !window.google.maps || !window.google.maps.places) {
       console.error('Google Maps JavaScript API library is not loaded.');
       return;
     }
 
+    // Initialize the map
     mapInstance.current = new window.google.maps.Map(mapRef.current, {
       center,
       zoom,
     });
 
+    // Initialize the marker
     markerInstance.current = new window.google.maps.Marker({
       map: mapInstance.current,
     });
 
+    // Initialize the info window
     infoWindowInstance.current = new window.google.maps.InfoWindow();
 
-    // Initialize the search box and link it to the UI element.
+    // Initialize the search box and link it to the UI element
     const searchBox = new window.google.maps.places.SearchBox(searchBoxRef.current);
-
     mapInstance.current.controls[window.google.maps.ControlPosition.TOP_LEFT].push(searchBoxRef.current);
 
-    // Bias the SearchBox results towards current map's viewport.
+    // Bias the SearchBox results towards current map's viewport
     mapInstance.current.addListener('bounds_changed', () => {
       searchBox.setBounds(mapInstance.current.getBounds());
     });
 
+    // Listen for places changed event
     searchBox.addListener('places_changed', () => {
       const places = searchBox.getPlaces();
 
@@ -42,10 +45,10 @@ function Map({ center, zoom, onPlaceSelected }) {
         return;
       }
 
-      // Clear out the old markers.
+      // Clear out the old markers
       markerInstance.current.setMap(null);
 
-      // For each place, get the icon, name and location.
+      // For each place, get the icon, name, and location
       const bounds = new window.google.maps.LatLngBounds();
       places.forEach((place) => {
         if (!place.geometry || !place.geometry.location) {
@@ -53,7 +56,7 @@ function Map({ center, zoom, onPlaceSelected }) {
           return;
         }
 
-        // Create a marker for each place.
+        // Create a marker for each place
         markerInstance.current.setPosition(place.geometry.location);
         markerInstance.current.setMap(mapInstance.current);
 
@@ -70,7 +73,7 @@ function Map({ center, zoom, onPlaceSelected }) {
         infoWindowInstance.current.open(mapInstance.current, markerInstance.current);
 
         if (place.geometry.viewport) {
-          // Only geocodes have viewport.
+          // Only geocodes have viewport
           bounds.union(place.geometry.viewport);
         } else {
           bounds.extend(place.geometry.location);
