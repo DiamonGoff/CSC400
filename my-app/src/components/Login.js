@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axiosInstance from '../axiosInstance'; // Use the configured Axios instance
+import axiosInstance from '../utils/axiosInstance'; // Use the configured Axios instance
 import './Login.css';
 
 function Login({ setUser }) {
@@ -17,11 +17,16 @@ function Login({ setUser }) {
         password
       });
 
+      console.log('Login response:', response); // Add this line
+
       setMessage(response.data.message);
       setUser(response.data.user);
-      localStorage.setItem('token', response.data.token); // Store the token in localStorage
+      localStorage.setItem('token', response.data.token); // Store the token without 'Bearer' prefix
+      localStorage.setItem('userId', response.data.user._id); // Store the userId in localStorage
+      axiosInstance.defaults.headers['Authorization'] = `Bearer ${response.data.token}`; // Update axios instance with new token
       navigate('/'); // Navigate to home or any other route
     } catch (error) {
+      console.log('Login error:', error); // Add this line
       setMessage(`Error logging in: ${error.response?.data?.message || error.message}`);
     }
   };

@@ -1,5 +1,3 @@
-// src/components/Organizer/TaskForm.js
-
 import React, { useState } from 'react';
 
 function TaskForm({ addTask }) {
@@ -10,7 +8,7 @@ function TaskForm({ addTask }) {
   const [status, setStatus] = useState('Not Started');
   
   // Assuming these values are known and static, you can set them here
-  const assignedUser = "669527daca5461643c8e627c"; // Replace with actual value
+  const assignedUser = localStorage.getItem('userId'); // Use userId from localStorage
   const eventId = "6698538210e34f47c1699c35"; // Replace with actual value
 
   const handleSubmit = (e) => {

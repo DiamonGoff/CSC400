@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const Favorite = require('../models/Favorite');
-const Venue = require('../models/Venue');
+const verifyToken = require('../middleware/verifyToken'); // Use the new middleware
 
 // Get all favorite venues
-router.get('/', async (req, res) => {
+router.get('/', verifyToken, async (req, res) => {
   try {
-    const favorites = await Favorite.find().populate('venue');
+    const favorites = await Favorite.find({ userId: req.userId }).populate('venue');
     console.log('Fetched favorites:', favorites);
     res.json(favorites);
   } catch (error) {
@@ -16,7 +16,7 @@ router.get('/', async (req, res) => {
 });
 
 // Add a favorite venue
-router.post('/add', async (req, res) => {
+router.post('/add', verifyToken, async (req, res) => {
   try {
     const { venueId } = req.body;
     if (!venueId) {
@@ -24,7 +24,7 @@ router.post('/add', async (req, res) => {
       return res.status(400).json({ message: 'Venue ID is required' });
     }
     console.log('Adding favorite venue with ID:', venueId);
-    const favorite = new Favorite({ venue: venueId });
+    const favorite = new Favorite({ venue: venueId, userId: req.userId });
     await favorite.save();
     const populatedFavorite = await favorite.populate('venue');
     console.log('Favorite added:', populatedFavorite);
@@ -36,7 +36,7 @@ router.post('/add', async (req, res) => {
 });
 
 // Remove a favorite venue
-router.post('/remove', async (req, res) => {
+router.post('/remove', verifyToken, async (req, res) => {
   try {
     const { venueId } = req.body;
     if (!venueId) {
@@ -44,7 +44,7 @@ router.post('/remove', async (req, res) => {
       return res.status(400).json({ message: 'Venue ID is required' });
     }
     console.log('Removing favorite venue with ID:', venueId);
-    await Favorite.deleteOne({ venue: venueId });
+    await Favorite.deleteOne({ venue: venueId, userId: req.userId });
     console.log('Favorite removed');
     res.status(200).json({ message: 'Favorite venue removed' });
   } catch (error) {
@@ -54,11 +54,11 @@ router.post('/remove', async (req, res) => {
 });
 
 // Delete a favorite venue by ID
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
     console.log('Deleting favorite venue with ID:', id);
-    await Favorite.findByIdAndDelete(id);
+    await Favorite.findByIdAndDelete({ _id: id, userId: req.userId });
     console.log('Favorite deleted');
     res.status(200).json({ message: 'Favorite venue deleted' });
   } catch (error) {

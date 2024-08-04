@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import './OrganizerInterface.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarPlus, faCalendarAlt, faSearch, faTasks, faUser } from '@fortawesome/free-solid-svg-icons';
-import axios from 'axios';
+import axiosInstance from '../../utils/axiosInstance'; // Ensure the correct path
 import { Link, useNavigate } from 'react-router-dom';
 import Select from 'react-select';
 import TaskManagement from './TaskManagement';
@@ -11,36 +11,7 @@ import Map from './Map';
 
 const amenitiesOptions = [
   { value: 'WiFi', label: 'WiFi' },
-  { value: 'Parking', label: 'Parking' },
-  { value: 'Restrooms', label: 'Restrooms' },
-  { value: 'AV Equipment', label: 'AV Equipment' },
-  { value: 'Stage', label: 'Stage' },
-  { value: 'Dance Floor', label: 'Dance Floor' },
-  { value: 'Outdoor Area', label: 'Outdoor Area' },
-  { value: 'Catering Services', label: 'Catering Services' },
-  { value: 'Bar Services', label: 'Bar Services' },
-  { value: 'Tables and Chairs', label: 'Tables and Chairs' },
-  { value: 'Linens', label: 'Linens' },
-  { value: 'Decorations', label: 'Decorations' },
-  { value: 'Lighting', label: 'Lighting' },
-  { value: 'DJ or Live Music', label: 'DJ or Live Music' },
-  { value: 'Photo Booth', label: 'Photo Booth' },
-  { value: 'Projector and Screen', label: 'Projector and Screen' },
-  { value: 'Private Rooms', label: 'Private Rooms' },
-  { value: 'Kids Play Area', label: 'Kids Play Area' },
-  { value: 'Air Conditioning/Heating', label: 'Air Conditioning/Heating' },
-  { value: 'Accessible Facilities', label: 'Accessible Facilities (Wheelchair Access)' },
-  { value: 'Coat Check', label: 'Coat Check' },
-  { value: 'Security Services', label: 'Security Services' },
-  { value: 'Sound System', label: 'Sound System' },
-  { value: 'Games and Entertainment', label: 'Games and Entertainment' },
-  { value: 'Pet-Friendly', label: 'Pet-Friendly' },
-  { value: 'Swimming Pool', label: 'Swimming Pool' },
-  { value: 'Spa Services', label: 'Spa Services' },
-  { value: 'Backup Power Supply', label: 'Backup Power Supply' },
-  { value: 'Fireplace', label: 'Fireplace' },
-  { value: 'Smoking Area', label: 'Smoking Area' },
-  { value: 'Food', label: 'Food' }
+  // ... other options
 ];
 
 function OrganizerInterface({ user, setUser }) {
@@ -55,6 +26,7 @@ function OrganizerInterface({ user, setUser }) {
   const [capacity, setCapacity] = useState('');
   const [budget, setBudget] = useState('');
   const [events, setEvents] = useState([]);
+  const [tasks, setTasks] = useState([]); // Add tasks state
   const [invite, setInvite] = useState('');
   const [editEventId, setEditEventId] = useState(null);
   const [mapCenter, setMapCenter] = useState({ lat: 37.7749, lng: -122.4194 });
@@ -63,6 +35,7 @@ function OrganizerInterface({ user, setUser }) {
 
   const navigate = useNavigate();
   const userId = localStorage.getItem('userId');
+  console.log('userId:', userId); // Debugging line
 
   useEffect(() => {
     if (!userId) {
@@ -76,7 +49,7 @@ function OrganizerInterface({ user, setUser }) {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/events');
+        const response = await axiosInstance.get('/events');
         setEvents(response.data);
       } catch (error) {
         console.error('There was an error fetching the events!', error);
@@ -87,11 +60,23 @@ function OrganizerInterface({ user, setUser }) {
     }
   }, [userId]);
 
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const response = await axiosInstance.get('/tasks');
+        setTasks(response.data);
+      } catch (error) {
+        console.error('There was an error fetching the tasks!', error);
+      }
+    };
+    if (userId) {
+      fetchTasks();
+    }
+  }, [userId]);
+
   const fetchUser = useCallback(async () => {
     try {
-      const response = await axios.get(`http://localhost:3001/users/${userId}`, {
-        withCredentials: true
-      });
+      const response = await axiosInstance.get(`/users/${userId}`);
       setUser(response.data);
     } catch (error) {
       console.error('There was an error fetching the user!', error);
@@ -100,6 +85,7 @@ function OrganizerInterface({ user, setUser }) {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('userId'); // Ensure userId is removed on logout (YES)
     setUser(null);
     navigate('/login');
   };
@@ -107,7 +93,7 @@ function OrganizerInterface({ user, setUser }) {
   const handleCreateEvent = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:3001/events', {
+      const response = await axiosInstance.post('/events', {
         name: eventName,
         date: eventDate,
         time: eventTime,
@@ -116,8 +102,6 @@ function OrganizerInterface({ user, setUser }) {
         guestList: [],
         specialRequirements: '',
         userId: userId
-      }, {
-        withCredentials: true
       });
       setMessage('Event created successfully');
       setEventName('');
@@ -135,11 +119,9 @@ function OrganizerInterface({ user, setUser }) {
   const handleInviteSend = async (eventId) => {
     const guests = invite.split(',').map(email => email.trim());
     try {
-      await axios.post('http://localhost:3001/events/send-invite', {
+      await axiosInstance.post('/events/send-invite', {
         eventId,
         guests
-      }, {
-        withCredentials: true
       });
       setMessage('Invites sent successfully');
       setInvite('');
@@ -162,14 +144,12 @@ function OrganizerInterface({ user, setUser }) {
   const handleEventUpdate = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.put(`http://localhost:3001/events/${editEventId}`, {
+      const response = await axiosInstance.put(`/events/${editEventId}`, {
         name: eventName,
         date: eventDate,
         time: eventTime,
         location: eventLocation,
         description: eventDescription
-      }, {
-        withCredentials: true
       });
       setEvents(events.map(event => (event._id === editEventId ? response.data : event)));
       setMessage('Event updated successfully');
@@ -187,9 +167,7 @@ function OrganizerInterface({ user, setUser }) {
 
   const handleEventDelete = async (eventId) => {
     try {
-      await axios.delete(`http://localhost:3001/events/${eventId}`, {
-        withCredentials: true
-      });
+      await axiosInstance.delete(`/events/${eventId}`);
       setEvents(events.filter(event => event._id !== eventId));
     } catch (error) {
       console.error('There was an error deleting the event!', error);
@@ -200,14 +178,13 @@ function OrganizerInterface({ user, setUser }) {
     e.preventDefault();
     const amenities = selectedAmenities.map(option => option.value).join(',');
     try {
-      const response = await axios.get('http://localhost:3001/venues/search', {
+      const response = await axiosInstance.get('/venues/search', {
         params: {
           location: eventLocation,
           capacity,
           amenities,
           budget
-        },
-        withCredentials: true
+        }
       });
       setVenues(response.data);
     } catch (error) {
@@ -238,7 +215,6 @@ function OrganizerInterface({ user, setUser }) {
           <Link to="/organizer/profile" className="btn"><FontAwesomeIcon icon={faUser} /> Profile</Link>
           <Link to="/organizer/venue-management" className="btn"><FontAwesomeIcon icon={faSearch} /> Venue Management</Link>
           <Link to="/organizer/task-management" className="btn"><FontAwesomeIcon icon={faTasks} /> Task Management</Link>
-          
         </nav>
 
         {/* Event Management Section */}
@@ -342,7 +318,17 @@ function OrganizerInterface({ user, setUser }) {
         {/* Task Management Section */}
         <section>
           <h2><FontAwesomeIcon icon={faTasks} /> Task Management</h2>
-          <TaskManagement />
+          <TaskManagement tasks={tasks} fetchTasks={() => {
+            const fetchTasks = async () => {
+              try {
+                const response = await axiosInstance.get('/tasks');
+                setTasks(response.data);
+              } catch (error) {
+                console.error('There was an error fetching the tasks!', error);
+              }
+            };
+            fetchTasks();
+          }} />
         </section>
 
         <footer>

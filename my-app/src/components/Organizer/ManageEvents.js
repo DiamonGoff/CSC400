@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axiosInstance from '../utils/axiosInstance'; // Use the configured Axios instance
 
 const ManageEvents = ({ setMessage, events, setEvents }) => {
   // Local state for form inputs and editing
@@ -27,7 +27,7 @@ const ManageEvents = ({ setMessage, events, setEvents }) => {
     e.preventDefault();
     try {
       // API call to update the event
-      const response = await axios.put(`http://localhost:3001/events/${editEventId}`, {
+      const response = await axiosInstance.put(`/events/${editEventId}`, {
         name: eventName,
         date: eventDate,
         time: eventTime,
@@ -54,7 +54,7 @@ const ManageEvents = ({ setMessage, events, setEvents }) => {
   const handleEventDelete = async (eventId) => {
     try {
       // API call to delete the event
-      await axios.delete(`http://localhost:3001/events/${eventId}`);
+      await axiosInstance.delete(`/events/${eventId}`);
       // Update events state
       setEvents(events.filter(event => event._id !== eventId));
     } catch (error) {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import axiosInstance from '../axiosInstance'; // Use the configured Axios instance
 
 const CreateEvent = ({ setMessage, setEvents, events }) => {
   // Local state for form inputs
@@ -9,17 +9,20 @@ const CreateEvent = ({ setMessage, setEvents, events }) => {
   const [eventLocation, setEventLocation] = useState('');
   const [eventDescription, setEventDescription] = useState('');
 
+  const userId = localStorage.getItem('userId'); // Ensure userId is retrieved from localStorage
+
   // Handler for creating an event
   const handleCreateEvent = async (e) => {
     e.preventDefault();
     try {
       // API call to create a new event
-      const response = await axios.post('http://localhost:3001/events', {
+      const response = await axiosInstance.post('/events', {
         name: eventName,
         date: eventDate,
         time: eventTime,
         location: eventLocation,
         description: eventDescription,
+        userId: userId // Ensure userId is included in the event data
       });
       // Update the message and events state upon successful creation
       setMessage('Event created successfully');

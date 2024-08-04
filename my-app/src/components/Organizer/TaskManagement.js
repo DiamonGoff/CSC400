@@ -1,43 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import './TaskManagement.css';
-import axios from 'axios';
+import axiosInstance from '../../utils/axiosInstance';
 
-function TaskManagement() {
+function TaskManagement({ tasks, fetchTasks }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [priority, setPriority] = useState('Medium');
   const [status, setStatus] = useState('Not Started');
-  const [tasks, setTasks] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editTaskId, setEditTaskId] = useState(null);
   const [search, setSearch] = useState('');
   const [filterPriority, setFilterPriority] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
-  const [isEditing, setIsEditing] = useState(false);
-  const [editTaskId, setEditTaskId] = useState(null);
-
-  useEffect(() => {
-    fetchTasks();
-  }, []);
-
-  const fetchTasks = async () => {
-    try {
-      const response = await axios.get('http://localhost:3001/tasks');
-      setTasks(response.data);
-    } catch (error) {
-      console.error('Error fetching tasks:', error);
-    }
-  };
 
   const handleAddTask = async (e) => {
     e.preventDefault();
     try {
       const newTask = { title, description, dueDate, priority, status };
       if (isEditing) {
-        await axios.put(`http://localhost:3001/tasks/${editTaskId}`, newTask);
+        await axiosInstance.put(`/tasks/${editTaskId}`, newTask);
         setIsEditing(false);
         setEditTaskId(null);
       } else {
-        await axios.post('http://localhost:3001/tasks', newTask);
+        await axiosInstance.post('/tasks', newTask);
       }
       fetchTasks();
       setTitle('');
@@ -62,7 +48,7 @@ function TaskManagement() {
 
   const handleDeleteTask = async (taskId) => {
     try {
-      await axios.delete(`http://localhost:3001/tasks/${taskId}`);
+      await axiosInstance.delete(`/tasks/${taskId}`);
       fetchTasks();
     } catch (error) {
       console.error('Error deleting task:', error);
@@ -77,6 +63,7 @@ function TaskManagement() {
           placeholder="Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+          required
         />
         <textarea
           placeholder="Description"

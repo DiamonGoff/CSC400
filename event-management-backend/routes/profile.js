@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const authenticate = require('../middleware/authenticate');
+const verifyToken = require('../middleware/verifyToken'); // Use the new middleware
 const User = require('../models/User');
 
-router.get('/:id', authenticate, async (req, res) => {
+router.get('/:id', verifyToken, async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
@@ -15,7 +15,7 @@ router.get('/:id', authenticate, async (req, res) => {
   }
 });
 
-router.put('/:id', authenticate, async (req, res) => {
+router.put('/:id', verifyToken, async (req, res) => {
   try {
     const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!user) {

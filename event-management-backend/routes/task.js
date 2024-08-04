@@ -1,12 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const Task = require('../models/Task');
+const verifyToken = require('../middleware/verifyToken'); // Use the new middleware
 
 // Get all tasks
-router.get('/', async (req, res) => {
+router.get('/', verifyToken, async (req, res) => {
     try {
         console.log('Fetching all tasks');
-        const tasks = await Task.find();
+        const tasks = await Task.find({ userId: req.userId });
         res.json(tasks);
     } catch (err) {
         console.error('Error fetching all tasks:', err);
@@ -15,9 +16,9 @@ router.get('/', async (req, res) => {
 });
 
 // Create a new task
-router.post('/', async (req, res) => {
+router.post('/', verifyToken, async (req, res) => {
     console.log('Creating a new task with data:', req.body);
-    const task = new Task(req.body);
+    const task = new Task({ ...req.body, userId: req.userId });
     try {
         const newTask = await task.save();
         console.log('Task created successfully:', newTask);
@@ -29,10 +30,10 @@ router.post('/', async (req, res) => {
 });
 
 // Get tasks by event
-router.get('/event/:eventId', async (req, res) => {
+router.get('/event/:eventId', verifyToken, async (req, res) => {
     console.log(`Fetching tasks for event ID: ${req.params.eventId}`);
     try {
-        const tasks = await Task.find({ eventId: req.params.eventId });
+        const tasks = await Task.find({ eventId: req.params.eventId, userId: req.userId });
         console.log(`Tasks for event ID ${req.params.eventId}:`, tasks);
         res.json(tasks);
     } catch (err) {
@@ -42,10 +43,10 @@ router.get('/event/:eventId', async (req, res) => {
 });
 
 // Update a task
-router.put('/:id', async (req, res) => {
+router.put('/:id', verifyToken, async (req, res) => {
     console.log(`Updating task ID: ${req.params.id} with data:`, req.body);
     try {
-        const task = await Task.findById(req.params.id);
+        const task = await Task.findOne({ _id: req.params.id, userId: req.userId });
         if (!task) {
             console.error('Task not found for ID:', req.params.id);
             return res.status(404).json({ message: 'Task not found' });
@@ -61,10 +62,10 @@ router.put('/:id', async (req, res) => {
 });
 
 // Delete a task
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', verifyToken, async (req, res) => {
     console.log(`Deleting task ID: ${req.params.id}`);
     try {
-        const task = await Task.findById(req.params.id);
+        const task = await Task.findOne({ _id: req.params.id, userId: req.userId });
         if (!task) {
             console.error('Task not found for ID:', req.params.id);
             return res.status(404).json({ message: 'Task not found' });

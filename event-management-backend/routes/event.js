@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const Event = require('../models/Event');
-const auth = require('../middleware/auth');
+const verifyToken = require('../middleware/verifyToken'); // Updated to use verifyToken middleware
 const { sendEventInviteEmail } = require('../services/emailService');
 
 // Get all events
-router.get('/', auth, async (req, res) => {
+router.get('/', verifyToken, async (req, res) => {
   try {
-    const events = await Event.find({ userId: req.user });
+    const events = await Event.find({ userId: req.userId });
     res.json(events);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -15,7 +15,7 @@ router.get('/', auth, async (req, res) => {
 });
 
 // Create a new event
-router.post('/', auth, async (req, res) => {
+router.post('/', verifyToken, async (req, res) => {
   const { name, date, time, location, description, guestList, specialRequirements } = req.body;
 
   try {
@@ -27,7 +27,7 @@ router.post('/', auth, async (req, res) => {
       description,
       guestList,
       specialRequirements,
-      userId: req.user // Add userId to the event
+      userId: req.userId // Ensure userId is added to the event
     });
 
     const newEvent = await event.save();
@@ -38,20 +38,14 @@ router.post('/', auth, async (req, res) => {
 });
 
 // Update an event
-router.put('/:id', auth, async (req, res) => {
+router.put('/:id', verifyToken, async (req, res) => {
   try {
-    const event = await Event.findById(req.params.id);
+    const event = await Event.findOne({ _id: req.params.id, userId: req.userId });
     if (!event) {
       return res.status(404).json({ message: 'Event not found' });
     }
 
-    event.name = req.body.name || event.name;
-    event.date = req.body.date || event.date;
-    event.time = req.body.time || event.time;
-    event.location = req.body.location || event.location;
-    event.description = req.body.description || event.description;
-    event.guestList = req.body.guestList || event.guestList;
-    event.specialRequirements = req.body.specialRequirements || event.specialRequirements;
+    Object.assign(event, req.body);
 
     const updatedEvent = await event.save();
     res.json(updatedEvent);
@@ -61,9 +55,9 @@ router.put('/:id', auth, async (req, res) => {
 });
 
 // Delete an event
-router.delete('/:id', auth, async (req, res) => {
+router.delete('/:id', verifyToken, async (req, res) => {
   try {
-    const event = await Event.findById(req.params.id);
+    const event = await Event.findOne({ _id: req.params.id, userId: req.userId });
     if (!event) {
       return res.status(404).json({ message: 'Event not found' });
     }
@@ -76,10 +70,10 @@ router.delete('/:id', auth, async (req, res) => {
 });
 
 // Send invite
-router.post('/send-invite', auth, async (req, res) => {
+router.post('/send-invite', verifyToken, async (req, res) => {
   const { eventId, guests } = req.body;
   try {
-    const event = await Event.findById(eventId);
+    const event = await Event.findOne({ _id: eventId, userId: req.userId });
     if (!event) {
       return res.status(404).json({ message: 'Event not found' });
     }

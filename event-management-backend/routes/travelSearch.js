@@ -1,6 +1,7 @@
 const express = require('express');
 const axios = require('axios');
 const router = express.Router();
+const verifyToken = require('../middleware/verifyToken'); // Use the new middleware
 
 // Use winston for better logging (optional)
 const winston = require('winston');
@@ -16,7 +17,7 @@ const logger = winston.createLogger({
   ]
 });
 
-router.get('/', async (req, res) => {
+router.get('/', verifyToken, async (req, res) => {
   const { location } = req.query;
 
   if (!location) {
