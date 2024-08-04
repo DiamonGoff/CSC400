@@ -18,7 +18,7 @@ function OrganizerInterface({ user, setUser }) {
   const [eventName, setEventName] = useState('');
   const [eventDate, setEventDate] = useState('');
   const [eventTime, setEventTime] = useState('');
-  const [eventLocation, setEventLocation] = useState('');
+  const [eventLocation, setEventLocation] = useState(null);
   const [eventDescription, setEventDescription] = useState('');
   const [message, setMessage] = useState('');
   const [venues, setVenues] = useState([]);
@@ -26,9 +26,15 @@ function OrganizerInterface({ user, setUser }) {
   const [capacity, setCapacity] = useState('');
   const [budget, setBudget] = useState('');
   const [events, setEvents] = useState([]);
-  const [tasks, setTasks] = useState([]); // Add tasks state
+  const [tasks, setTasks] = useState([]);
   const [invite, setInvite] = useState('');
   const [editEventId, setEditEventId] = useState(null);
+  const [editTaskId, setEditTaskId] = useState(null); // For editing tasks
+  const [taskTitle, setTaskTitle] = useState('');
+  const [taskDescription, setTaskDescription] = useState('');
+  const [taskDueDate, setTaskDueDate] = useState('');
+  const [taskPriority, setTaskPriority] = useState('Medium');
+  const [taskStatus, setTaskStatus] = useState('Not Started');
   const [mapCenter, setMapCenter] = useState({ lat: 37.7749, lng: -122.4194 });
   const [mapZoom, setMapZoom] = useState(12);
   const [favoriteVenues, setFavoriteVenues] = useState([]);
@@ -97,17 +103,17 @@ function OrganizerInterface({ user, setUser }) {
         name: eventName,
         date: eventDate,
         time: eventTime,
-        location: eventLocation,
+        location: eventLocation ? eventLocation.label : '',
         description: eventDescription,
         guestList: [],
         specialRequirements: '',
-        userId: userId
+        userId: userId // Ensure userId is added to the event
       });
       setMessage('Event created successfully');
       setEventName('');
       setEventDate('');
       setEventTime('');
-      setEventLocation('');
+      setEventLocation(null);
       setEventDescription('');
       setEvents([...events, response.data]);
     } catch (error) {
@@ -137,7 +143,7 @@ function OrganizerInterface({ user, setUser }) {
     setEventName(event.name);
     setEventDate(event.date);
     setEventTime(event.time);
-    setEventLocation(event.location);
+    setEventLocation({ value: event.location, label: event.location });
     setEventDescription(event.description);
   };
 
@@ -148,7 +154,7 @@ function OrganizerInterface({ user, setUser }) {
         name: eventName,
         date: eventDate,
         time: eventTime,
-        location: eventLocation,
+        location: eventLocation ? eventLocation.label : '',
         description: eventDescription
       });
       setEvents(events.map(event => (event._id === editEventId ? response.data : event)));
@@ -157,7 +163,7 @@ function OrganizerInterface({ user, setUser }) {
       setEventName('');
       setEventDate('');
       setEventTime('');
-      setEventLocation('');
+      setEventLocation(null);
       setEventDescription('');
     } catch (error) {
       setMessage('There was an error updating the event!');
@@ -180,7 +186,7 @@ function OrganizerInterface({ user, setUser }) {
     try {
       const response = await axiosInstance.get('/venues/search', {
         params: {
-          location: eventLocation,
+          location: eventLocation ? eventLocation.label : '',
           capacity,
           amenities,
           budget
@@ -193,7 +199,7 @@ function OrganizerInterface({ user, setUser }) {
   };
 
   const handlePlaceSelected = (place) => {
-    setEventLocation(place.formatted_address);
+    setEventLocation({ value: place.formatted_address, label: place.formatted_address });
     setMapCenter(place.geometry.location);
     setMapZoom(15);
   };
@@ -206,6 +212,60 @@ function OrganizerInterface({ user, setUser }) {
       }
       return [...prevFavorites, venue];
     });
+  };
+
+  const handleCreateTask = async (e) => {
+    e.preventDefault();
+    try {
+      const newTask = {
+        title: taskTitle,
+        description: taskDescription,
+        dueDate: taskDueDate,
+        priority: taskPriority,
+        status: taskStatus,
+        userId: userId // Ensure the task is associated with the user
+      };
+      console.log('Creating task with data:', newTask); // Log for debugging
+      if (editTaskId) {
+        const response = await axiosInstance.put(`/tasks/${editTaskId}`, newTask);
+        console.log('Task updated successfully:', response.data);
+        setTasks(tasks.map(task => (task._id === editTaskId ? response.data : task)));
+        setEditTaskId(null);
+      } else {
+        const response = await axiosInstance.post('/tasks', newTask);
+        console.log('Task created successfully:', response.data);
+        setTasks([...tasks, response.data]);
+      }
+      setTaskTitle('');
+      setTaskDescription('');
+      setTaskDueDate('');
+      setTaskPriority('Medium');
+      setTaskStatus('Not Started');
+      setMessage('Task created/updated successfully');
+    } catch (error) {
+      console.error('There was an error creating/updating the task!', error);
+      setMessage('There was an error creating/updating the task!');
+    }
+  };
+
+  const handleTaskEdit = (taskId) => {
+    const task = tasks.find(task => task._id === taskId);
+    setTaskTitle(task.title);
+    setTaskDescription(task.description);
+    setTaskDueDate(task.dueDate.split('T')[0]);
+    setTaskPriority(task.priority);
+    setTaskStatus(task.status);
+    setEditTaskId(taskId);
+  };
+
+  const handleTaskDelete = async (taskId) => {
+    try {
+      await axiosInstance.delete(`/tasks/${taskId}`);
+      setTasks(tasks.filter(task => task._id !== taskId));
+    } catch (error) {
+      console.error('There was an error deleting the task!', error);
+      setMessage('There was an error deleting the task!');
+    }
   };
 
   return (
@@ -244,12 +304,13 @@ function OrganizerInterface({ user, setUser }) {
               onChange={(e) => setEventTime(e.target.value)} 
               required 
             />
-            <input 
-              type="text" 
-              placeholder="Location" 
-              value={eventLocation} 
-              onChange={(e) => setEventLocation(e.target.value)} 
-              required 
+            <Select
+              value={eventLocation}
+              onChange={(option) => setEventLocation(option)}
+              options={venues.map(venue => ({ value: venue.name, label: venue.name }))}
+              placeholder="Select Location"
+              isSearchable
+              required
             />
             <textarea 
               placeholder="Description" 
@@ -291,7 +352,7 @@ function OrganizerInterface({ user, setUser }) {
         <section>
           <h2><FontAwesomeIcon icon={faSearch} /> Venue Search</h2>
           <form onSubmit={handleVenueSearch}>
-            <input type="text" id="autocomplete" placeholder="Location" value={eventLocation} onChange={(e) => setEventLocation(e.target.value)} required />
+            <input type="text" id="autocomplete" placeholder="Location" value={eventLocation ? eventLocation.label : ''} onChange={(e) => setEventLocation({ value: e.target.value, label: e.target.value })} required />
             <input type="number" placeholder="Capacity" value={capacity} onChange={(e) => setCapacity(e.target.value)} required />
             <Select
               isMulti
@@ -317,18 +378,65 @@ function OrganizerInterface({ user, setUser }) {
 
         {/* Task Management Section */}
         <section>
-          <h2><FontAwesomeIcon icon={faTasks} /> Task Management</h2>
-          <TaskManagement tasks={tasks} fetchTasks={() => {
-            const fetchTasks = async () => {
-              try {
-                const response = await axiosInstance.get('/tasks');
-                setTasks(response.data);
-              } catch (error) {
-                console.error('There was an error fetching the tasks!', error);
-              }
-            };
-            fetchTasks();
-          }} />
+          <br />
+          <h2><FontAwesomeIcon icon={faTasks} /> {editTaskId ? 'Edit Task' : 'Create New Task'}</h2>
+          {message && <div className="confirmation-message">{message}</div>}
+          <form onSubmit={editTaskId ? handleCreateTask : handleCreateTask}>
+            <input
+              type="text"
+              placeholder="Task Title"
+              value={taskTitle}
+              onChange={(e) => setTaskTitle(e.target.value)}
+              required
+            />
+            <textarea
+              placeholder="Task Description"
+              value={taskDescription}
+              onChange={(e) => setTaskDescription(e.target.value)}
+            />
+            <input
+              type="date"
+              placeholder="Due Date"
+              value={taskDueDate}
+              onChange={(e) => setTaskDueDate(e.target.value)}
+              required
+            />
+            <select
+              value={taskPriority}
+              onChange={(e) => setTaskPriority(e.target.value)}
+            >
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select>
+            <select
+              value={taskStatus}
+              onChange={(e) => setTaskStatus(e.target.value)}
+            >
+              <option value="Not Started">Not Started</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Completed">Completed</option>
+            </select>
+            <button type="submit" className="btn">{editTaskId ? 'Update Task' : 'Create Task'}</button>
+          </form>
+        </section>
+
+        {/* Task List Section */}
+        <section>
+          <h2><FontAwesomeIcon icon={faTasks} /> Manage Tasks</h2>
+          <div className="task-list">
+            {tasks.map(task => (
+              <div key={task._id} className="task">
+                <p><strong>Title:</strong> {task.title}</p>
+                <p><strong>Description:</strong> {task.description}</p>
+                <p><strong>Due Date:</strong> {new Date(task.dueDate).toLocaleDateString()}</p>
+                <p><strong>Priority:</strong> {task.priority}</p>
+                <p><strong>Status:</strong> {task.status}</p>
+                <button className="btn" onClick={() => handleTaskEdit(task._id)}>Edit</button>
+                <button className="btn" onClick={() => handleTaskDelete(task._id)}>Delete</button>
+              </div>
+            ))}
+          </div>
         </section>
 
         <footer>

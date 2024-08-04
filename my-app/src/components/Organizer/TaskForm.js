@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axiosInstance from '../../utils/axiosInstance'; // Ensure the correct path
 
 function TaskForm({ addTask }) {
   const [title, setTitle] = useState('');
@@ -11,14 +12,20 @@ function TaskForm({ addTask }) {
   const assignedUser = localStorage.getItem('userId'); // Use userId from localStorage
   const eventId = "6698538210e34f47c1699c35"; // Replace with actual value
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    addTask({ title, description, dueDate, priority, status, assignedUser, eventId });
-    setTitle('');
-    setDescription('');
-    setDueDate('');
-    setPriority('Medium');
-    setStatus('Not Started');
+    try {
+      const newTask = { title, description, dueDate, priority, status, assignedUser, eventId };
+      await axiosInstance.post('/tasks', newTask);
+      addTask(newTask);
+      setTitle('');
+      setDescription('');
+      setDueDate('');
+      setPriority('Medium');
+      setStatus('Not Started');
+    } catch (error) {
+      console.error('Error adding task:', error);
+    }
   };
 
   return (

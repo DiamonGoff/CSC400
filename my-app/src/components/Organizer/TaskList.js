@@ -1,7 +1,25 @@
 import React from 'react';
-
+import axiosInstance from '../../utils/axiosInstance'; // Ensure the correct path
 
 function TaskList({ tasks, updateTask, deleteTask }) {
+  const handleUpdateTask = async (taskId, updates) => {
+    try {
+      await axiosInstance.put(`/tasks/${taskId}`, updates);
+      updateTask(taskId, updates);
+    } catch (error) {
+      console.error('Error updating task:', error);
+    }
+  };
+
+  const handleDeleteTask = async (taskId) => {
+    try {
+      await axiosInstance.delete(`/tasks/${taskId}`);
+      deleteTask(taskId);
+    } catch (error) {
+      console.error('Error deleting task:', error);
+    }
+  };
+
   return (
     <div>
       <ul>
@@ -12,9 +30,9 @@ function TaskList({ tasks, updateTask, deleteTask }) {
             <p>Due: {new Date(task.dueDate).toLocaleDateString()}</p>
             <p>Priority: {task.priority}</p>
             <p>Status: {task.status}</p>
-            <button onClick={() => updateTask(task._id, { status: 'In Progress' })}>In Progress</button>
-            <button onClick={() => updateTask(task._id, { status: 'Completed' })}>Completed</button>
-            <button onClick={() => deleteTask(task._id)}>Delete</button>
+            <button onClick={() => handleUpdateTask(task._id, { status: 'In Progress' })}>In Progress</button>
+            <button onClick={() => handleUpdateTask(task._id, { status: 'Completed' })}>Completed</button>
+            <button onClick={() => handleDeleteTask(task._id)}>Delete</button>
           </li>
         ))}
       </ul>

@@ -29,19 +29,6 @@ router.post('/', verifyToken, async (req, res) => {
     }
 });
 
-// Get tasks by event
-router.get('/event/:eventId', verifyToken, async (req, res) => {
-    console.log(`Fetching tasks for event ID: ${req.params.eventId}`);
-    try {
-        const tasks = await Task.find({ eventId: req.params.eventId, userId: req.userId });
-        console.log(`Tasks for event ID ${req.params.eventId}:`, tasks);
-        res.json(tasks);
-    } catch (err) {
-        console.error(`Error fetching tasks for event ID ${req.params.eventId}:`, err);
-        res.status(500).json({ message: err.message });
-    }
-});
-
 // Update a task
 router.put('/:id', verifyToken, async (req, res) => {
     console.log(`Updating task ID: ${req.params.id} with data:`, req.body);

@@ -161,7 +161,7 @@ form {
   flex-direction: column;
 }
 
-form input, form textarea, form button {
+form input, form textarea, form button, form select {
   margin: 10px 0;
   padding: 10px;
   font-size: 1rem;
@@ -186,7 +186,7 @@ form button:hover {
   padding: 10px 20px;
   font-size: 1rem;
   color: white;
-  background: #96889e;
+  background: #612486;
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -211,6 +211,29 @@ form button:hover {
 
 .btn-edit:hover, .btn-delete:hover, .btn-complete:hover {
   background: #5A1486;
+}
+
+/* Task List Styles */
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.task {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.task .task-details {
+  margin-bottom: 10px;
+}
+
+.task .task-actions {
+  display: flex;
+  gap: 10px;
 }
 
 /* Footer Styles */
@@ -269,5 +292,5 @@ footer {
 
 .venue-card p {
   font-size: 1rem;
-  color: #666;
+  color: #667;
 }
