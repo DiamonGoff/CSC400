@@ -5,19 +5,29 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
-const dotenv = require('dotenv');
 const passport = require('./config/passport'); // Import passport configuration
-
-dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3001;
 
 // Middleware setup
+const allowedOrigins = ['http://127.0.0.1:3000', 'http://localhost:3000'];
 app.use(cors({
-  origin: 'http://127.0.0.1:3000',
-  credentials: true,
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true); // Allow requests with no origin (e.g., mobile apps or curl requests)
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true, // Enable credentials (cookies, authorization headers, etc.)
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
+
+app.options('*', cors()); // Allow preflight requests for all routes
+
 app.use(bodyParser.json());
 app.use(session({
   secret: process.env.JWT_SECRET,
@@ -39,6 +49,11 @@ const favoriteRoutes = require('./routes/favorites');
 const notificationRoutes = require('./routes/notifications');
 const profileRoutes = require('./routes/profile');
 const userRoutes = require('./routes/user');
+const geocodeRouter = require('./routes/geocode');
+const travelRoutes = require('./routes/travel');
+const directionsRoute = require('./routes/directions');
+const hotelsRoute = require('./routes/hotels'); // Import the hotels route
+const travelModesRoute = require('./routes/travelModes'); // Import the travel modes route
 
 // Basic route
 app.get('/', (req, res) => {
@@ -56,6 +71,11 @@ app.use('/favorites', favoriteRoutes);
 app.use('/notifications', notificationRoutes);
 app.use('/profile', profileRoutes);
 app.use('/users', userRoutes);
+app.use('/geocode', geocodeRouter);
+app.use('/travel', travelRoutes);
+app.use('/api/directions', directionsRoute);
+app.use('/api/hotels', hotelsRoute); // Use the hotels route
+app.use('/api/travelModes', travelModesRoute); // Use the travel modes route
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI, {

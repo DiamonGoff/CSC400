@@ -8,12 +8,16 @@ import HeroSection from './components/HeroSection';
 import FeaturesSection from './components/FeaturesSection';
 import Footer from './components/Footer';
 import Register from './components/Register';
-import Profile from './components/Profile'; // Import Profile component
-import axiosInstance from './axiosInstance'; // Import the configured Axios instance
-import './App.css'; // Import the CSS file for styling
+import Profile from './components/Profile';
+import AttendeeEventSelection from './components/Attendee/AttendeeEventSelection';
+import Dashboard from './components/Dashboard'; // Ensure correct import
+import axiosInstance from './axiosInstance';
+import './App.css';
 
 function App() {
   const [user, setUser] = useState(null);
+  const [eventId, setEventId] = useState(null); // Store event ID
+  const [events, setEvents] = useState([]); // Store user events
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -23,6 +27,7 @@ function App() {
       })
       .then(response => {
         setUser(response.data.user);
+        fetchUserEvents(response.data.user._id); // Fetch user events
       })
       .catch(error => {
         console.error('Token verification failed', error);
@@ -31,16 +36,30 @@ function App() {
     }
   }, []);
 
+  const fetchUserEvents = (userId) => {
+    axiosInstance.get(`/users/${userId}/events`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    })
+    .then(response => {
+      setEvents(response.data);
+    })
+    .catch(error => {
+      console.error('Failed to fetch user events', error);
+    });
+  };
+
   return (
     <Router>
       <div className="App">
-        <Header user={user} setUser={setUser} /> {/* Pass setUser to Header */}
+        <Header user={user} setUser={setUser} eventId={eventId} /> {/* Pass eventId */}
         <Routes>
           <Route path="/login" element={<Login setUser={setUser} />} />
           <Route path="/organizer" element={<OrganizerInterface user={user} setUser={setUser} />} />
           <Route path="/organizer/profile" element={<Profile user={user} />} />
-          <Route path="/attendee" element={<AttendeeInterface eventLocation="37.7749,-122.4194" />} /> {/* Pass eventLocation prop */}
+          <Route path="/attendee" element={<AttendeeEventSelection events={events} setEventId={setEventId} />} /> {/* EventSelection route */}
+          <Route path="/attendee/:eventId" element={<AttendeeInterface />} /> {/* AttendeeInterface route */}
           <Route path="/register" element={<Register />} />
+          <Route path="/dashboard" element={<Dashboard />} /> {/* Dashboard route */}
           <Route path="/" element={
             <>
               <HeroSection />

@@ -1,6 +1,5 @@
-// src/components/Register.js
-import React, { useState } from 'react';
-import axiosInstance from '../axiosInstance'; // Use the configured Axios instance
+import React, { useState, useEffect } from 'react';
+import axiosInstance from '../utils/axiosInstance'; // Use the configured Axios instance
 import './Register.css'; // Ensure you have styling for your form
 
 function Register() {
@@ -9,6 +8,7 @@ function Register() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState('');
+  const [token, setToken] = useState(''); // To store the token received in the invite link
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -20,13 +20,23 @@ function Register() {
       const response = await axiosInstance.post('/auth/register', {
         name,
         email,
-        password
+        password,
+        token, // Include the token in the request
       });
       setMessage(response.data.message);
     } catch (error) {
       setMessage(`Error registering user: ${error.response?.data?.message || error.message}`);
     }
   };
+
+  useEffect(() => {
+    // Extract token from URL query parameters
+    const queryParams = new URLSearchParams(window.location.search);
+    const tokenFromURL = queryParams.get('token');
+    if (tokenFromURL) {
+      setToken(tokenFromURL);
+    }
+  }, []);
 
   return (
     <div className="register-box">

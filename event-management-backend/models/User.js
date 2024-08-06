@@ -14,6 +14,11 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  role: {
+    type: String,
+    enum: ['organizer', 'attendee'],
+    default: 'organizer', // Set default role to 'organizer'
+  },
   isVerified: {
     type: Boolean,
     default: false,

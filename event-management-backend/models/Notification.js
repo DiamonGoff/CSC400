@@ -10,7 +10,14 @@ const NotificationSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    // Add other relevant fields
+    createdAt: {
+        type: Date,
+        default: Date.now
+    },
+    read: {
+        type: Boolean,
+        default: false
+    }
 });
 
 module.exports = mongoose.model('Notification', NotificationSchema);

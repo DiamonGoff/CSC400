@@ -1,27 +1,35 @@
 import axios from 'axios';
 
-const token = localStorage.getItem('token');
-
+// Create an Axios instance
 const axiosInstance = axios.create({
   baseURL: 'http://localhost:3001',
   headers: {
-    'Authorization': token ? `Bearer ${token}` : '',
     'Content-Type': 'application/json'
-  },
-  withCredentials: true,
+  }
 });
 
+// Interceptor to attach the token to headers
 axiosInstance.interceptors.request.use(
-  (config) => {
+  config => {
     const token = localStorage.getItem('token');
     if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
+      config.headers['Authorization'] = token; // Attach the token without 'Bearer ' prefix
     }
     return config;
   },
-  (error) => {
+  error => {
     return Promise.reject(error);
   }
 );
+
+// Example function to handle login and store the token
+export const loginUser = async (credentials) => {
+  try {
+    const response = await axiosInstance.post('/login', credentials); // Replace with your login endpoint
+    localStorage.setItem('token', `Bearer ${response.data.token}`); // Store the token with 'Bearer ' prefix
+  } catch (error) {
+    console.error('Login failed', error);
+  }
+};
 
 export default axiosInstance;

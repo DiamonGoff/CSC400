@@ -8,6 +8,8 @@ const ManageEvents = ({ setMessage, events, setEvents }) => {
   const [eventDate, setEventDate] = useState('');
   const [eventTime, setEventTime] = useState('');
   const [eventLocation, setEventLocation] = useState('');
+  const [latitude, setLatitude] = useState('');
+  const [longitude, setLongitude] = useState('');
   const [eventDescription, setEventDescription] = useState('');
 
   useEffect(() => {
@@ -18,6 +20,8 @@ const ManageEvents = ({ setMessage, events, setEvents }) => {
       setEventDate(event.date);
       setEventTime(event.time);
       setEventLocation(event.location);
+      setLatitude(event.latitude);
+      setLongitude(event.longitude);
       setEventDescription(event.description);
     }
   }, [editEventId, events]);
@@ -32,6 +36,8 @@ const ManageEvents = ({ setMessage, events, setEvents }) => {
         date: eventDate,
         time: eventTime,
         location: eventLocation,
+        latitude: parseFloat(latitude),
+        longitude: parseFloat(longitude),
         description: eventDescription,
       });
       // Update events state and reset form inputs
@@ -42,6 +48,8 @@ const ManageEvents = ({ setMessage, events, setEvents }) => {
       setEventDate('');
       setEventTime('');
       setEventLocation('');
+      setLatitude('');
+      setLongitude('');
       setEventDescription('');
     } catch (error) {
       // Handle errors
@@ -70,6 +78,8 @@ const ManageEvents = ({ setMessage, events, setEvents }) => {
           <p><strong>Date:</strong> {new Date(event.date).toLocaleDateString()}</p>
           <p><strong>Time:</strong> {event.time}</p>
           <p><strong>Location:</strong> {event.location}</p>
+          <p><strong>Latitude:</strong> {event.latitude}</p>
+          <p><strong>Longitude:</strong> {event.longitude}</p>
           <p><strong>Description:</strong> {event.description}</p>
           <button className="btn" onClick={() => setEditEventId(event._id)}>Edit</button>
           <button className="btn" onClick={() => handleEventDelete(event._id)}>Delete</button>
@@ -82,6 +92,8 @@ const ManageEvents = ({ setMessage, events, setEvents }) => {
           <input type="date" placeholder="Date" value={eventDate} onChange={(e) => setEventDate(e.target.value)} required />
           <input type="time" placeholder="Time" value={eventTime} onChange={(e) => setEventTime(e.target.value)} required />
           <input type="text" placeholder="Location" value={eventLocation} onChange={(e) => setEventLocation(e.target.value)} required />
+          <input type="number" placeholder="Latitude" value={latitude} onChange={(e) => setLatitude(e.target.value)} required />
+          <input type="number" placeholder="Longitude" value={longitude} onChange={(e) => setLongitude(e.target.value)} required />
           <textarea placeholder="Description" value={eventDescription} onChange={(e) => setEventDescription(e.target.value)} required ></textarea>
           <button type="submit" className="btn">Update Event</button>
         </form>

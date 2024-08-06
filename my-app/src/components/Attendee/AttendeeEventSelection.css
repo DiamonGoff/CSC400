@@ -1,0 +1,28 @@
+.event-selection {
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .event-selection h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  .event-selection ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .event-selection li {
+    margin: 10px 0;
+  }
+  
+  .event-selection a {
+    text-decoration: none;
+    color: #007bff;
+  }
+  
+  .event-selection a:hover {
+    text-decoration: underline;
+  }
+  

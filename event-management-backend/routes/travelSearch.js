@@ -18,41 +18,31 @@ const logger = winston.createLogger({
 });
 
 router.get('/', verifyToken, async (req, res) => {
-  const { location } = req.query;
+  const { location, type } = req.query;
 
-  if (!location) {
-    logger.error('Location is required');
-    return res.status(400).json({ error: 'Location is required' });
+  if (!location || !type) {
+    logger.error('Location and type are required');
+    return res.status(400).json({ error: 'Location and type are required' });
   }
 
   try {
-    logger.info(`Fetching transportation options for location: ${location}`);
-    const transportationResponse = await axios.get('https://maps.googleapis.com/maps/api/place/nearbysearch/json', {
+    logger.info(`Fetching ${type} options for location: ${location}`);
+    const placesResponse = await axios.get('https://maps.googleapis.com/maps/api/place/nearbysearch/json', {
       params: {
         location,
-        radius: 5000, // 5km radius for transportation
-        type: 'bus_station|subway_station|train_station',
-        key: process.env.GOOGLE_MAPS_API_KEY,
+        radius: type === 'lodging' ? 10000 : 5000, // 10km radius for lodging, 5km for transportation
+        type,
+        key: process.env.GOOGLE_PLACES_API_KEY,
       },
     });
 
-    logger.info(`Transportation options fetched successfully`);
-
-    logger.info(`Fetching lodging options for location: ${location}`);
-    const lodgingResponse = await axios.get('https://maps.googleapis.com/maps/api/place/nearbysearch/json', {
-      params: {
-        location,
-        radius: 10000, // 10km radius for lodging
-        type: 'lodging',
-        key: process.env.GOOGLE_MAPS_API_KEY,
-      },
-    });
-
-    logger.info(`Lodging options fetched successfully`);
+    logger.info(`${type} options fetched successfully`);
 
     res.json({
-      transportation: transportationResponse.data.results,
-      lodging: lodgingResponse.data.results,
+      results: placesResponse.data.results.map(place => ({
+        name: place.name,
+        vicinity: place.vicinity,
+      })),
     });
   } catch (error) {
     logger.error(`Error fetching data from Google Places API: ${error.response ? error.response.data : error.message}`);

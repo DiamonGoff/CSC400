@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Header.css';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axiosInstance from '../utils/axiosInstance';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell } from '@fortawesome/free-solid-svg-icons';
 
@@ -14,9 +14,7 @@ const Header = ({ user, setUser }) => {
     if (user) {
       const fetchNotifications = async () => {
         try {
-          const response = await axios.get('http://localhost:3001/notifications', {
-            withCredentials: true
-          });
+          const response = await axiosInstance.get('/notifications');
           setNotifications(response.data);
         } catch (error) {
           console.error('Error fetching notifications', error);
@@ -58,7 +56,7 @@ const Header = ({ user, setUser }) => {
                     <ul>
                       {notifications.map((notification) => (
                         <li key={notification._id}>
-                          <span>{new Date(notification.timestamp).toLocaleString()}</span>
+                          <span>{new Date(notification.createdAt).toLocaleString()}</span>
                           <p>{notification.message}</p>
                         </li>
                       ))}

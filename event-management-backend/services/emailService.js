@@ -27,4 +27,22 @@ const sendVerificationEmail = async (email, token) => {
   }
 };
 
-module.exports = { sendVerificationEmail };
+const sendEventInviteEmail = async (email, inviteLink, event) => {
+  const mailOptions = {
+    from: process.env.EMAIL,
+    to: email,
+    subject: `You're invited to ${event.name}`,
+    text: `You have been invited to ${event.name}. Click the link to join: ${inviteLink}`,
+    html: `<p>You have been invited to <strong>${event.name}</strong>. Click the link to join:</p><p><a href="${inviteLink}">${inviteLink}</a></p>`
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log('Invite email sent to', email);
+  } catch (error) {
+    console.error('Error sending email:', error);
+    throw new Error('Error sending invite email');
+  }
+};
+
+module.exports = { sendVerificationEmail, sendEventInviteEmail };

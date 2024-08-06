@@ -1,5 +1,26 @@
 const mongoose = require('mongoose');
 
+const rsvpSchema = new mongoose.Schema({
+  attendeeId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  attendeeName: {
+    type: String,
+    required: true
+  },
+  attendeeEmail: {
+    type: String,
+    required: true
+  },
+  response: {
+    type: String,
+    enum: ['yes', 'no', 'maybe'],
+    default: 'yes'
+  }
+});
+
 const eventSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -14,7 +35,10 @@ const eventSchema = new mongoose.Schema({
     required: true
   },
   location: {
-    type: String,
+    type: {
+      lat: { type: Number, required: true },
+      lng: { type: Number, required: true }
+    },
     required: true
   },
   description: {
@@ -22,7 +46,7 @@ const eventSchema = new mongoose.Schema({
     required: true
   },
   guestList: {
-    type: [String], // Assuming an array of guest emails or phone numbers
+    type: [String], // Array of guest emails
     default: []
   },
   specialRequirements: {
@@ -33,6 +57,10 @@ const eventSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
+  },
+  rsvps: {
+    type: [rsvpSchema],
+    default: []
   }
 });
 

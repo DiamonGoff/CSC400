@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axiosInstance from '../utils/axiosInstance'; // Use the configured Axios instance
+import axiosInstance from '../utils/axiosInstance';
 import './Login.css';
 
 function Login({ setUser }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('organizer'); // Default role
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
@@ -14,21 +15,34 @@ function Login({ setUser }) {
     try {
       const response = await axiosInstance.post('/auth/login', {
         email,
-        password
+        password,
+        role // Send role with the login request
       });
 
-      console.log('Login response:', response); // Add this line
+      console.log('Login response:', response);
 
       setMessage(response.data.message);
       setUser(response.data.user);
-      localStorage.setItem('token', response.data.token); // Store the token without 'Bearer' prefix
-      localStorage.setItem('userId', response.data.user._id); // Store the userId in localStorage
-      axiosInstance.defaults.headers['Authorization'] = `Bearer ${response.data.token}`; // Update axios instance with new token
-      navigate('/'); // Navigate to home or any other route
+      localStorage.setItem('token', `Bearer ${response.data.token}`); // Store the token with 'Bearer ' prefix
+      localStorage.setItem('user', JSON.stringify(response.data.user)); // Store the user object
+      localStorage.setItem('userId', response.data.user._id); // Store the userId
+
+      axiosInstance.defaults.headers['Authorization'] = response.data.token; // Update axios instance with new token
+
+      // Redirect based on role
+      if (response.data.user.role === 'organizer') {
+        navigate('/organizer');
+      } else if (response.data.user.role === 'attendee') {
+        navigate('/dashboard'); // Redirect to the new dashboard
+      }
     } catch (error) {
-      console.log('Login error:', error); // Add this line
+      console.log('Login error:', error);
       setMessage(`Error logging in: ${error.response?.data?.message || error.message}`);
     }
+  };
+
+  const toggleRole = () => {
+    setRole((prevRole) => (prevRole === 'organizer' ? 'attendee' : 'organizer'));
   };
 
   return (
@@ -59,6 +73,9 @@ function Login({ setUser }) {
             required
           />
         </div>
+        <button type="button" onClick={toggleRole} className="btn btn-secondary btn-block">
+          Toggle Role (Current: {role})
+        </button>
         <input type="submit" value="Login" className="btn btn-primary btn-block" />
       </form>
       {message && <p>{message}</p>}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './OrganizerInterface.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendarPlus, faCalendarAlt, faSearch, faTasks, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faCalendarPlus, faCalendarAlt, faSearch, faTasks, faList } from '@fortawesome/free-solid-svg-icons';
 import axiosInstance from '../../utils/axiosInstance'; // Ensure the correct path
 import { Link, useNavigate } from 'react-router-dom';
 import Select from 'react-select';
@@ -18,7 +18,7 @@ function OrganizerInterface({ user, setUser }) {
   const [eventName, setEventName] = useState('');
   const [eventDate, setEventDate] = useState('');
   const [eventTime, setEventTime] = useState('');
-  const [eventLocation, setEventLocation] = useState(null);
+  const [eventLocation, setEventLocation] = useState('');
   const [eventDescription, setEventDescription] = useState('');
   const [message, setMessage] = useState('');
   const [venues, setVenues] = useState([]);
@@ -27,9 +27,9 @@ function OrganizerInterface({ user, setUser }) {
   const [budget, setBudget] = useState('');
   const [events, setEvents] = useState([]);
   const [tasks, setTasks] = useState([]);
-  const [invite, setInvite] = useState('');
+  const [inviteInputs, setInviteInputs] = useState({});
   const [editEventId, setEditEventId] = useState(null);
-  const [editTaskId, setEditTaskId] = useState(null); // For editing tasks
+  const [editTaskId, setEditTaskId] = useState(null);
   const [taskTitle, setTaskTitle] = useState('');
   const [taskDescription, setTaskDescription] = useState('');
   const [taskDueDate, setTaskDueDate] = useState('');
@@ -38,6 +38,8 @@ function OrganizerInterface({ user, setUser }) {
   const [mapCenter, setMapCenter] = useState({ lat: 37.7749, lng: -122.4194 });
   const [mapZoom, setMapZoom] = useState(12);
   const [favoriteVenues, setFavoriteVenues] = useState([]);
+  const [rsvpList, setRsvpList] = useState([]);
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
   const navigate = useNavigate();
   const userId = localStorage.getItem('userId');
@@ -91,29 +93,52 @@ function OrganizerInterface({ user, setUser }) {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    localStorage.removeItem('userId'); // Ensure userId is removed on logout (YES)
+    localStorage.removeItem('userId');
     setUser(null);
     navigate('/login');
+  };
+
+  const geocodeLocation = async () => {
+    try {
+      const response = await axiosInstance.get('/geocode', {
+        params: {
+          address: eventLocation,
+        },
+      });
+      const location = response.data;
+      return location;
+    } catch (error) {
+      console.error('Error geocoding location:', error);
+      setMessage('There was an error getting the location coordinates.');
+      throw new Error('Geocoding failed');
+    }
   };
 
   const handleCreateEvent = async (e) => {
     e.preventDefault();
     try {
+      const location = await geocodeLocation();
+      if (!location.lat || !location.lng) {
+        setMessage('Latitude and Longitude are required.');
+        return;
+      }
+
       const response = await axiosInstance.post('/events', {
         name: eventName,
         date: eventDate,
         time: eventTime,
-        location: eventLocation ? eventLocation.label : '',
         description: eventDescription,
+        latitude: location.lat,
+        longitude: location.lng,
         guestList: [],
         specialRequirements: '',
-        userId: userId // Ensure userId is added to the event
+        userId: userId
       });
       setMessage('Event created successfully');
       setEventName('');
       setEventDate('');
       setEventTime('');
-      setEventLocation(null);
+      setEventLocation('');
       setEventDescription('');
       setEvents([...events, response.data]);
     } catch (error) {
@@ -122,15 +147,22 @@ function OrganizerInterface({ user, setUser }) {
     }
   };
 
+  const handleInviteChange = (eventId, value) => {
+    setInviteInputs(prevInputs => ({
+      ...prevInputs,
+      [eventId]: value,
+    }));
+  };
+
   const handleInviteSend = async (eventId) => {
-    const guests = invite.split(',').map(email => email.trim());
+    const guests = inviteInputs[eventId]?.split(',').map(email => email.trim());
     try {
       await axiosInstance.post('/events/send-invite', {
         eventId,
         guests
       });
       setMessage('Invites sent successfully');
-      setInvite('');
+      handleInviteChange(eventId, ''); // Clear the input field after sending invites
     } catch (error) {
       console.error('There was an error sending the invites!', error);
       setMessage('There was an error sending the invites!');
@@ -143,19 +175,26 @@ function OrganizerInterface({ user, setUser }) {
     setEventName(event.name);
     setEventDate(event.date);
     setEventTime(event.time);
-    setEventLocation({ value: event.location, label: event.location });
+    setEventLocation(event.location.name); // Assuming location is now an object with name, lat, lng
     setEventDescription(event.description);
   };
 
   const handleEventUpdate = async (e) => {
     e.preventDefault();
     try {
+      const location = await geocodeLocation();
+      if (!location.lat || !location.lng) {
+        setMessage('Latitude and Longitude are required.');
+        return;
+      }
+
       const response = await axiosInstance.put(`/events/${editEventId}`, {
         name: eventName,
         date: eventDate,
         time: eventTime,
-        location: eventLocation ? eventLocation.label : '',
-        description: eventDescription
+        description: eventDescription,
+        latitude: location.lat,
+        longitude: location.lng
       });
       setEvents(events.map(event => (event._id === editEventId ? response.data : event)));
       setMessage('Event updated successfully');
@@ -163,7 +202,7 @@ function OrganizerInterface({ user, setUser }) {
       setEventName('');
       setEventDate('');
       setEventTime('');
-      setEventLocation(null);
+      setEventLocation('');
       setEventDescription('');
     } catch (error) {
       setMessage('There was an error updating the event!');
@@ -186,7 +225,7 @@ function OrganizerInterface({ user, setUser }) {
     try {
       const response = await axiosInstance.get('/venues/search', {
         params: {
-          location: eventLocation ? eventLocation.label : '',
+          location: eventLocation,
           capacity,
           amenities,
           budget
@@ -199,7 +238,7 @@ function OrganizerInterface({ user, setUser }) {
   };
 
   const handlePlaceSelected = (place) => {
-    setEventLocation({ value: place.formatted_address, label: place.formatted_address });
+    setEventLocation(place.formatted_address);
     setMapCenter(place.geometry.location);
     setMapZoom(15);
   };
@@ -223,17 +262,14 @@ function OrganizerInterface({ user, setUser }) {
         dueDate: taskDueDate,
         priority: taskPriority,
         status: taskStatus,
-        userId: userId // Ensure the task is associated with the user
+        userId: userId
       };
-      console.log('Creating task with data:', newTask); // Log for debugging
       if (editTaskId) {
         const response = await axiosInstance.put(`/tasks/${editTaskId}`, newTask);
-        console.log('Task updated successfully:', response.data);
         setTasks(tasks.map(task => (task._id === editTaskId ? response.data : task)));
         setEditTaskId(null);
       } else {
         const response = await axiosInstance.post('/tasks', newTask);
-        console.log('Task created successfully:', response.data);
         setTasks([...tasks, response.data]);
       }
       setTaskTitle('');
@@ -268,13 +304,33 @@ function OrganizerInterface({ user, setUser }) {
     }
   };
 
+  const handleRsvpList = async (eventId) => {
+    setSelectedEvent(eventId);
+    try {
+      const response = await axiosInstance.get(`/events/${eventId}/rsvps`);
+      setRsvpList(response.data);
+    } catch (error) {
+      console.error('There was an error fetching the RSVP list!', error);
+      setMessage('There was an error fetching the RSVP list!');
+    }
+  };
+
   return (
     <div className="organizer-background">
       <div className="container">
         <nav className="organizer-nav">
-          <Link to="/organizer/profile" className="btn"><FontAwesomeIcon icon={faUser} /> Profile</Link>
-          <Link to="/organizer/venue-management" className="btn"><FontAwesomeIcon icon={faSearch} /> Venue Management</Link>
-          <Link to="/organizer/task-management" className="btn"><FontAwesomeIcon icon={faTasks} /> Task Management</Link>
+          <button className="btn" onClick={() => handleRsvpList(selectedEvent)}>
+            <FontAwesomeIcon icon={faList} /> RSVP List
+          </button>
+          <Link to="/organizer/venue-management" className="btn">
+            <FontAwesomeIcon icon={faSearch} /> Venue Management
+          </Link>
+          <Link to="/organizer/task-management" className="btn">
+            <FontAwesomeIcon icon={faTasks} /> Task Management
+          </Link>
+          <button className="btn" onClick={handleLogout}>
+            Logout
+          </button>
         </nav>
 
         {/* Event Management Section */}
@@ -304,14 +360,16 @@ function OrganizerInterface({ user, setUser }) {
               onChange={(e) => setEventTime(e.target.value)} 
               required 
             />
-            <Select
+            <select
               value={eventLocation}
-              onChange={(option) => setEventLocation(option)}
-              options={venues.map(venue => ({ value: venue.name, label: venue.name }))}
-              placeholder="Select Location"
-              isSearchable
+              onChange={(e) => setEventLocation(e.target.value)}
               required
-            />
+            >
+              <option value="">Select Location</option>
+              {venues.map((venue) => (
+                <option key={venue._id} value={venue.name}>{venue.name}</option>
+              ))}
+            </select>
             <textarea 
               placeholder="Description" 
               value={eventDescription} 
@@ -331,18 +389,19 @@ function OrganizerInterface({ user, setUser }) {
                 <p><strong>Name:</strong> {event.name}</p>
                 <p><strong>Date:</strong> {new Date(event.date).toLocaleDateString()}</p>
                 <p><strong>Time:</strong> {event.time}</p>
-                <p><strong>Location:</strong> {event.location}</p>
+                <p><strong>Location:</strong> {event.location.name}</p>
                 <p><strong>Description:</strong> {event.description}</p>
                 <input 
                   type="text" 
                   style={{ width: '300px' }} 
                   placeholder="Guest Emails (comma separated)" 
-                  value={invite} 
-                  onChange={(e) => setInvite(e.target.value)} 
+                  value={inviteInputs[event._id] || ''} // Use the event-specific value
+                  onChange={(e) => handleInviteChange(event._id, e.target.value)} // Update the event-specific value
                 />
                 <button className="btn" onClick={() => handleInviteSend(event._id)}>Send Invites</button>
                 <button className="btn" onClick={() => handleEventEdit(event._id)}>Edit</button>
                 <button className="btn" onClick={() => handleEventDelete(event._id)}>Delete</button>
+                <button className="btn" onClick={() => handleRsvpList(event._id)}>View RSVPs</button>
               </div>
             ))}
           </div>
@@ -352,7 +411,7 @@ function OrganizerInterface({ user, setUser }) {
         <section>
           <h2><FontAwesomeIcon icon={faSearch} /> Venue Search</h2>
           <form onSubmit={handleVenueSearch}>
-            <input type="text" id="autocomplete" placeholder="Location" value={eventLocation ? eventLocation.label : ''} onChange={(e) => setEventLocation({ value: e.target.value, label: e.target.value })} required />
+            <input type="text" id="autocomplete" placeholder="Location" value={eventLocation} onChange={(e) => setEventLocation(e.target.value)} required />
             <input type="number" placeholder="Capacity" value={capacity} onChange={(e) => setCapacity(e.target.value)} required />
             <Select
               isMulti
@@ -438,6 +497,18 @@ function OrganizerInterface({ user, setUser }) {
             ))}
           </div>
         </section>
+
+        {/* RSVP List Section */}
+        {selectedEvent && (
+          <section>
+            <h3>RSVP List for Event</h3>
+            <ul>
+              {rsvpList.map((rsvp) => (
+                <li key={rsvp.attendeeId}>{rsvp.attendeeName} ({rsvp.attendeeEmail})</li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         <footer>
           &copy; 2024 EventConnect. All rights reserved.
