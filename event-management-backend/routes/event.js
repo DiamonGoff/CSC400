@@ -243,4 +243,29 @@ router.get('/:id/rsvps', verifyToken, verifyRole(['organizer']), async (req, res
   }
 });
 
+// Get RSVP lists for all events of the authenticated user
+router.get('/user/:userId/rsvps', verifyToken, async (req, res) => {
+  console.log('Fetching RSVP list for all events created by user:', req.params.userId);
+  try {
+    const events = await Event.find({ userId: req.params.userId });
+    if (!events.length) {
+      return res.status(404).json({ message: 'No events found for this user' });
+    }
+
+    const rsvpLists = await Promise.all(events.map(async (event) => {
+      const rsvps = event.rsvps;
+      return {
+        eventId: event._id,
+        eventName: event.name,
+        rsvps
+      };
+    }));
+
+    res.json(rsvpLists);
+  } catch (err) {
+    console.error('Error fetching RSVP lists:', err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
 module.exports = router;

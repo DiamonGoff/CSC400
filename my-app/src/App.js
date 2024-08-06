@@ -11,12 +11,27 @@ import Register from './components/Register';
 import Profile from './components/Profile';
 import AttendeeEventSelection from './components/Attendee/AttendeeEventSelection';
 import Dashboard from './components/Dashboard'; // Ensure correct import
+import RsvpList from './components/RsvpList'; // Ensure correct import
 import axiosInstance from './axiosInstance';
 import './App.css';
 
+async function fetchRSVPList(userId) {
+  if (!userId) {
+    console.error('Invalid userId:', userId);
+    return; // Handle this case appropriately, e.g., by showing an error message to the user.
+  }
+
+  try {
+    const response = await axiosInstance.get(`/events/user/${userId}/rsvps`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching RSVP list:', error.response ? error.response.data : error.message);
+    throw new Error('Failed to fetch RSVP list');
+  }
+}
+
 function App() {
   const [user, setUser] = useState(null);
-  const [eventId, setEventId] = useState(null); // Store event ID
   const [events, setEvents] = useState([]); // Store user events
 
   useEffect(() => {
@@ -51,15 +66,16 @@ function App() {
   return (
     <Router>
       <div className="App">
-        <Header user={user} setUser={setUser} eventId={eventId} /> {/* Pass eventId */}
+        <Header user={user} setUser={setUser} /> {/* Pass user and setUser */}
         <Routes>
           <Route path="/login" element={<Login setUser={setUser} />} />
           <Route path="/organizer" element={<OrganizerInterface user={user} setUser={setUser} />} />
           <Route path="/organizer/profile" element={<Profile user={user} />} />
-          <Route path="/attendee" element={<AttendeeEventSelection events={events} setEventId={setEventId} />} /> {/* EventSelection route */}
+          <Route path="/attendee" element={<AttendeeEventSelection events={events} />} /> {/* EventSelection route */}
           <Route path="/attendee/:eventId" element={<AttendeeInterface />} /> {/* AttendeeInterface route */}
           <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<Dashboard />} /> {/* Dashboard route */}
+          <Route path="/rsvp-list/:userId" element={<RsvpList fetchRSVPList={fetchRSVPList} />} /> {/* RSVP List route */}
           <Route path="/" element={
             <>
               <HeroSection />

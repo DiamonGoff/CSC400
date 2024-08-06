@@ -304,22 +304,29 @@ function OrganizerInterface({ user, setUser }) {
     }
   };
 
-  const handleRsvpList = async (eventId) => {
-    setSelectedEvent(eventId);
-    try {
-      const response = await axiosInstance.get(`/events/${eventId}/rsvps`);
-      setRsvpList(response.data);
-    } catch (error) {
-      console.error('There was an error fetching the RSVP list!', error);
-      setMessage('There was an error fetching the RSVP list!');
-    }
-  };
+  useEffect(() => {
+    const fetchRsvpList = async () => {
+      if (events.length > 0) {
+        const eventId = events[0]._id; // Select the first event
+        setSelectedEvent(eventId);
+        try {
+          const response = await axiosInstance.get(`/events/${eventId}/rsvps`);
+          setRsvpList(response.data);
+        } catch (error) {
+          console.error('There was an error fetching the RSVP list!', error);
+          setMessage('There was an error fetching the RSVP list!');
+        }
+      }
+    };
+
+    fetchRsvpList();
+  }, [events]);
 
   return (
     <div className="organizer-background">
       <div className="container">
         <nav className="organizer-nav">
-          <button className="btn" onClick={() => handleRsvpList(selectedEvent)}>
+          <button className="btn" onClick={() => navigate(`/rsvp-list/${userId}`)}>
             <FontAwesomeIcon icon={faList} /> RSVP List
           </button>
           <Link to="/organizer/venue-management" className="btn">
@@ -401,7 +408,6 @@ function OrganizerInterface({ user, setUser }) {
                 <button className="btn" onClick={() => handleInviteSend(event._id)}>Send Invites</button>
                 <button className="btn" onClick={() => handleEventEdit(event._id)}>Edit</button>
                 <button className="btn" onClick={() => handleEventDelete(event._id)}>Delete</button>
-                <button className="btn" onClick={() => handleRsvpList(event._id)}>View RSVPs</button>
               </div>
             ))}
           </div>
