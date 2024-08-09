@@ -1,6 +1,4 @@
-/* OrganizerInterface.css */
 
-/* General Styles */
 body {
   font-family: Arial, sans-serif;
   line-height: 1.6;
@@ -24,8 +22,7 @@ body {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
-  background: rgba(255, 255, 255, 0.9); /* Add a white background with some transparency for readability */
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9); 
 }
 
 /* Header Styles */
@@ -128,9 +125,35 @@ nav a:hover, .logout-button:hover {
   display: block;
 }
 
+/* Top Buttons Styles */
+.organizer-nav {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20px;
+  background-color: #6e00fa;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.organizer-nav .btn {
+  background-color: #9a00ff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.organizer-nav .btn:hover {
+  background-color: #7a00cc;
+}
+
 /* Section Styles */
 section {
-  background: rgba(255, 255, 255, 0.9); /* Transparent white background for sections */
+  background: rgba(255, 255, 255, 0.9);
   margin: 20px 0;
   padding: 20px;
   border-radius: 8px;
@@ -261,11 +284,11 @@ footer {
   border: 2px solid #ccc;
   padding: 10px;
   border-radius: 5px;
-  height: 400px; /* Adjust height as needed */
+  height: 400px; /* Adjustt height as needed */
 }
 
 .map-container > div {
-  height: 100%; /* Ensure the map fills the container */
+  height: 100%; /*makles sure the map fills the container */
 }
 
 .venue-list {
@@ -280,7 +303,7 @@ footer {
   border: 1px solid #ccc;
   border-radius: 5px;
   padding: 10px;
-  width: calc(33.333% - 20px); /* Three cards per row */
+  width: calc(33.333% - 20px); /* MAkes sure theres 3 a row */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 

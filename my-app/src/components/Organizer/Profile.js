@@ -1,4 +1,3 @@
-// src/components/Organizer/Profile.js
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import './Profile.css';

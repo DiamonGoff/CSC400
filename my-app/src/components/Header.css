@@ -29,7 +29,7 @@ nav {
 
 nav a, .logout-button {
   color: white;
-  background-color: #612486;
+  background-color: #5A20CB;
   margin: 0 10px;
   text-decoration: none;
   padding: 10px 15px;
@@ -41,12 +41,12 @@ nav a, .logout-button {
 }
 
 nav a:hover, .logout-button:hover {
-  background-color: #5A1486;
+  background-color: #5A20CB;
 }
 
 .welcome-message {
   margin-right: 10px;
-  color: #612486;
+  color: #5A20CB;
   font-weight: bold;
 }
 
@@ -58,7 +58,7 @@ nav a:hover, .logout-button:hover {
 .notifications-icon {
   font-size: 1.5rem;
   cursor: pointer;
-  color: #612486;
+  color: #5A20CB;
   margin-left: 20px;
 }
 

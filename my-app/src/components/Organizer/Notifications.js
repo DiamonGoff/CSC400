@@ -6,7 +6,7 @@ const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
-    // Fetch notifications from the server
+    // Fetch notiifications from the server
     const fetchNotifications = async () => {
       try {
         const response = await axios.get('http://localhost:3001/notifications', {
@@ -27,7 +27,7 @@ const Notifications = () => {
         {notifications.map((notification) => (
           <li key={notification._id}>
             <span>{new Date(notification.timestamp).toLocaleString()}</span> {/* Display the timestamp */}
-            <p>{notification.message}</p> {/* Display the notification message */}
+            <p>{notification.message}</p> {/* Display the notification messsage */}
           </li>
         ))}
       </ul>

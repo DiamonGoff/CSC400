@@ -73,7 +73,7 @@ function Login({ setUser }) {
             required
           />
         </div>
-        <button type="button" onClick={toggleRole} className="btn btn-secondary btn-block">
+        <button type="button" onClick={toggleRole} className="btn btn-secondary toggle-role-btn">
           Toggle Role (Current: {role})
         </button>
         <input type="submit" value="Login" className="btn btn-primary btn-block" />

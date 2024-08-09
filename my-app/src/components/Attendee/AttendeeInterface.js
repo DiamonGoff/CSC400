@@ -1,18 +1,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './AttendeeInterface.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGift, faShareAlt, faCommentDots, faEnvelope, faCar, faBus, faWalking, faBiking, faPlane } from '@fortawesome/free-solid-svg-icons';
+import { faGift, faShareAlt, faPlane, faEnvelope, faCar, faBus, faWalking, faBiking, faHotel } from '@fortawesome/free-solid-svg-icons';
 import axiosInstance from '../../utils/axiosInstance';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import MapComponent from './MapComponent';
-import HotelCard from './HotelCard'; // Import HotelCard component
+import HotelCard from './HotelCard';
 
 const travelModes = {
   driving: 'DRIVING',
   transit: 'TRANSIT',
   walking: 'WALKING',
   bicycling: 'BICYCLING',
-  flights: 'FLYING'
 };
 
 function AttendeeInterface() {
@@ -24,13 +23,14 @@ function AttendeeInterface() {
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [events, setEvents] = useState([]);
-  const [departure, setDeparture] = useState('');
+  const [departure, setDeparture] = useState(' ');
   const [travelDetails, setTravelDetails] = useState(null);
   const [travelError, setTravelError] = useState('');
   const [travelMode, setTravelMode] = useState(travelModes.driving);
   const [hotels, setHotels] = useState([]);
   const [hotelError, setHotelError] = useState(null);
   const [distanceFilter, setDistanceFilter] = useState(10); // Default filter set to 10 miles
+  const [giftSuggestions, setGiftSuggestions] = useState([]); // New state for gift suggestions
   const navigate = useNavigate();
   const userId = localStorage.getItem('userId');
   const userEmail = localStorage.getItem('userEmail');
@@ -54,6 +54,15 @@ function AttendeeInterface() {
     } catch (error) {
       console.error('There was an error fetching the event details!', error);
       setLoading(false);
+    }
+  }, [eventId]);
+
+  const fetchGiftSuggestions = useCallback(async () => {
+    try {
+      const response = await axiosInstance.get(`/gift-suggestions/${eventId}`);
+      setGiftSuggestions(response.data);
+    } catch (error) {
+      console.error('There was an error fetching the gift suggestions!', error);
     }
   }, [eventId]);
 
@@ -85,14 +94,16 @@ function AttendeeInterface() {
 
   const fetchTravelDetails = async (mode) => {
     try {
+      console.log('Fetching travel details with mode:', mode);
       const response = await axiosInstance.get('/api/travelModes/directions', {
         params: {
           origin: departure,
-          destination: `${event.location.lat},${event.location.lng}`,
+          destination: event ? `${event.location.lat},${event.location.lng}` : '',
           mode: mode // Ensure mode is passed correctly
         },
       });
 
+      console.log('Fetched travel details:', response.data); // Log full response
       setTravelDetails(response.data);
       setTravelError('');
     } catch (err) {
@@ -107,10 +118,11 @@ function AttendeeInterface() {
       navigate('/login');
     } else if (eventId) {
       fetchEvent();
+      fetchGiftSuggestions(); // Fetch gift suggestions when event ID is available
     } else {
       fetchEvents();
     }
-  }, [userId, navigate, eventId, fetchEvent, fetchEvents]);
+  }, [userId, navigate, eventId, fetchEvent, fetchEvents, fetchGiftSuggestions]);
 
   useEffect(() => {
     console.log('Event details:', event);
@@ -188,7 +200,7 @@ function AttendeeInterface() {
                     <div className="event-details">
                       <h3>{event.name}</h3>
                       <p>{new Date(event.date).toLocaleString()}</p>
-                      <p>{event.location.name}</p>
+                      <p>{event.location.name}</p> {/* Display venue name */}
                     </div>
                     <Link to={`/attendee/${event._id}`} className="btn btn-primary">
                       View Event
@@ -206,26 +218,13 @@ function AttendeeInterface() {
               event && (
                 <>
                   <section>
-                    <h1>Welcome, you have been invited to "{event.name}"</h1>
+                    <h1>Welcome, you have been invited to {event.name}</h1>
                   </section>
                   <section>
                     <br />
                     <h2><FontAwesomeIcon icon={faEnvelope} /> RSVP</h2>
                     <form onSubmit={handleRSVP}>
-                      <input
-                        type="text"
-                        placeholder="Your Name"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        required
-                      />
-                      <input
-                        type="email"
-                        placeholder="Your Email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                      />
+
                       <select
                         value={response}
                         onChange={(e) => setResponse(e.target.value)}
@@ -241,7 +240,17 @@ function AttendeeInterface() {
                   <section>
                     <h2><FontAwesomeIcon icon={faGift} /> Gift Ideas</h2>
                     <p>Explore the best gift ideas for the birthday event.</p>
-                    <button className="btn">View Gift Ideas</button>
+                    <div className="gift-suggestions">
+                      {giftSuggestions.length > 0 ? (
+                        giftSuggestions.map(suggestion => (
+                          <div key={suggestion._id} className="gift-suggestion">
+                            <FontAwesomeIcon icon={faGift} /> {suggestion.suggestion}
+                          </div>
+                        ))
+                      ) : (
+                        <p>No gift ideas available for this event.</p>
+                      )}
+                    </div>
                   </section>
                   <section>
                     <h2><FontAwesomeIcon icon={faShareAlt} /> Social Interaction</h2>
@@ -250,15 +259,7 @@ function AttendeeInterface() {
                     <button className="btn social-btn twitter" onClick={() => handleSocialShare('twitter')}>Share on X</button>
                   </section>
                   <section>
-                    <h2><FontAwesomeIcon icon={faCommentDots} /> Comments</h2>
-                    <p>Leave your comments and wishes for the birthday person.</p>
-                    <form>
-                      <input type="text" placeholder="Your Comment" />
-                      <button type="submit">Submit Comment</button>
-                    </form>
-                  </section>
-                  <section>
-                    <h2>Find Your Way</h2>
+                    <h2><FontAwesomeIcon icon={faPlane} /> Find Your Way To The Venue</h2>
                     <form onSubmit={handleTravelSearch}>
                       <input
                         type="text"
@@ -274,25 +275,26 @@ function AttendeeInterface() {
                       <button onClick={() => handleTravelModeChange(travelModes.transit)}><FontAwesomeIcon icon={faBus} /></button>
                       <button onClick={() => handleTravelModeChange(travelModes.walking)}><FontAwesomeIcon icon={faWalking} /></button>
                       <button onClick={() => handleTravelModeChange(travelModes.bicycling)}><FontAwesomeIcon icon={faBiking} /></button>
-                      <button onClick={() => handleTravelModeChange(travelModes.flights)}><FontAwesomeIcon icon={faPlane} /></button>
                     </div>
                     {travelError && <p className="error">{travelError}</p>}
-                    {travelDetails && (
+                    {travelDetails && travelDetails.routes && travelDetails.routes.length > 0 ? (
                       <div className="travel-details">
                         <h3>Travel Details</h3>
-                        <p>Distance from "{event.location.name}": {travelDetails.routes[0].legs[0].distance.text}</p>
+                        <p>Distance from {event.location.name}: {travelDetails.routes[0].legs[0].distance.text}</p>
                         <p>Duration: {travelDetails.routes[0].legs[0].duration.text}</p>
                         <MapComponent
                           center={travelDetails.routes[0].legs[0].start_location}
                           zoom={10}
                           directions={travelDetails}
-                          venueName={event.location.name}
+                          venueName={event.location.name} // Pass venue name correctly here
                         />
                       </div>
+                    ) : (
+                      <p>No route available for the selected travel mode.</p>
                     )}
                   </section>
                   <section>
-                    <h2>Hotel Suggestions Near {event.location.name}</h2>
+                    <h2><FontAwesomeIcon icon={faHotel} /> Hotel Suggestions Near {event.location.name}</h2>
                     <label>
                       Distance Filter (miles):
                       <input

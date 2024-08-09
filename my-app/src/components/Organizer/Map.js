@@ -8,7 +8,7 @@ function Map({ center, zoom, onPlaceSelected }) {
   const infoWindowInstance = useRef();
 
   useEffect(() => {
-    // Check if Google Maps API is loaded
+    // Checks to see if Google Maps API is loaded
     if (!window.google || !window.google.maps || !window.google.maps.places) {
       console.error('Google Maps JavaScript API library is not loaded.');
       return;

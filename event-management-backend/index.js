@@ -52,8 +52,9 @@ const userRoutes = require('./routes/user');
 const geocodeRouter = require('./routes/geocode');
 const travelRoutes = require('./routes/travel');
 const directionsRoute = require('./routes/directions');
-const hotelsRoute = require('./routes/hotels'); // Import the hotels route
-const travelModesRoute = require('./routes/travelModes'); // Import the travel modes route
+const hotelsRoute = require('./routes/hotels');
+const travelModesRoute = require('./routes/travelModes');
+const giftSuggestionsRouter = require('./routes/giftSuggestions'); // Import the gift suggestions route
 
 // Basic route
 app.get('/', (req, res) => {
@@ -74,8 +75,9 @@ app.use('/users', userRoutes);
 app.use('/geocode', geocodeRouter);
 app.use('/travel', travelRoutes);
 app.use('/api/directions', directionsRoute);
-app.use('/api/hotels', hotelsRoute); // Use the hotels route
-app.use('/api/travelModes', travelModesRoute); // Use the travel modes route
+app.use('/api/hotels', hotelsRoute);
+app.use('/api/travelModes', travelModesRoute);
+app.use('/gift-suggestions', giftSuggestionsRouter); // Use the gift suggestions route
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI, {

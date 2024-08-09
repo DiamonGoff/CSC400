@@ -12,7 +12,7 @@ axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     if (token) {
-      config.headers['Authorization'] = token; // The token already includes 'Bearer' prefix
+      config.headers['Authorization'] = token;
     }
     return config;
   },

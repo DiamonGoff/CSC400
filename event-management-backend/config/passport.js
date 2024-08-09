@@ -1,13 +1,15 @@
 const passport = require('passport');
 const FacebookStrategy = require('passport-facebook').Strategy;
 const TwitterStrategy = require('passport-twitter').Strategy;
-const User = require('../models/User'); // Your User model
+const User = require('../models/User');
 
+// Debugging: log environment variables for Facebook and Twitter
 console.log('FACEBOOK_CLIENT_ID:', process.env.FACEBOOK_CLIENT_ID);
 console.log('FACEBOOK_CLIENT_SECRET:', process.env.FACEBOOK_CLIENT_SECRET);
 console.log('TWITTER_CONSUMER_KEY:', process.env.TWITTER_CONSUMER_KEY);
 console.log('TWITTER_CONSUMER_SECRET:', process.env.TWITTER_CONSUMER_SECRET);
 
+// Configure Facebook OAuth strategy
 passport.use(new FacebookStrategy({
   clientID: process.env.FACEBOOK_CLIENT_ID,
   clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
@@ -26,6 +28,7 @@ async (accessToken, refreshToken, profile, done) => {
   }
 }));
 
+// Configure Twitter OAuth strategy
 passport.use(new TwitterStrategy({
   consumerKey: process.env.TWITTER_CONSUMER_KEY,
   consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
@@ -44,6 +47,7 @@ async (token, tokenSecret, profile, done) => {
   }
 }));
 
+// Serialize and deserialize user for session handling
 passport.serializeUser((user, done) => {
   done(null, user.id);
 });

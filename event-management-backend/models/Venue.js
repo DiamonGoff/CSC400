@@ -1,13 +1,18 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-const VenueSchema = new mongoose.Schema({
-  name: String,
-  address: String,
-  phone: String,
-  website: String,
-  amenities: [String],
-  capacity: Number,
-  price: Number,
+// Define schema for venues
+const venueSchema = new Schema({
+  name: {
+    type: String, // Venue name
+    required: true,
+  },
+  address: String, // Venue address (optional)
+  capacity: Number, // Venue capacity (optional)
+  // Add any other fields you need for the venue
 });
 
-module.exports = mongoose.model('Venue', VenueSchema);
+// Create Venue model from schema
+const Venue = mongoose.model('Venue', venueSchema);
+
+module.exports = Venue; // Export Venue model

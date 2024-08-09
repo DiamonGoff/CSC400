@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
 
+// Define RSVP schema for tracking attendee responses
 const rsvpSchema = new mongoose.Schema({
   attendeeId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId, // Reference to User model
     ref: 'User',
     required: true
   },
@@ -16,11 +17,12 @@ const rsvpSchema = new mongoose.Schema({
   },
   response: {
     type: String,
-    enum: ['yes', 'no', 'maybe'],
+    enum: ['yes', 'no', 'maybe'], // Allowed responses
     default: 'yes'
   }
 });
 
+// Define Event schema for storing event details
 const eventSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -35,11 +37,9 @@ const eventSchema = new mongoose.Schema({
     required: true
   },
   location: {
-    type: {
-      lat: { type: Number, required: true },
-      lng: { type: Number, required: true }
-    },
-    required: true
+    name: { type: String, required: true }, // Venue name
+    lat: { type: Number, required: true },  // Latitude
+    lng: { type: Number, required: true }   // Longitude
   },
   description: {
     type: String,
@@ -54,16 +54,17 @@ const eventSchema = new mongoose.Schema({
     default: ''
   },
   userId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId, // Reference to User model
     ref: 'User',
     required: true
   },
   rsvps: {
-    type: [rsvpSchema],
+    type: [rsvpSchema], // Array of RSVP objects
     default: []
   }
 });
 
+// Create Event model from schema
 const Event = mongoose.model('Event', eventSchema);
 
-module.exports = Event;
+module.exports = Event; // Export Event model

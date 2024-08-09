@@ -55,7 +55,7 @@ router.get('/users/:email/events', verifyToken, async (req, res) => {
 // Create a new event
 router.post('/', verifyToken, verifyRole(['organizer']), async (req, res) => {
   console.log('Creating a new event:', req.body);
-  const { name, date, time, description, latitude, longitude, guestList, specialRequirements } = req.body;
+  const { name, date, time, description, latitude, longitude, guestList, specialRequirements, venue } = req.body;
 
   if (!latitude || !longitude) {
     return res.status(400).json({ message: 'Latitude and Longitude are required.' });
@@ -67,6 +67,7 @@ router.post('/', verifyToken, verifyRole(['organizer']), async (req, res) => {
       date,
       time,
       location: {
+        name: venue, // Save venue name
         lat: latitude,
         lng: longitude
       },
@@ -88,7 +89,7 @@ router.post('/', verifyToken, verifyRole(['organizer']), async (req, res) => {
 // Update an event
 router.put('/:id', verifyToken, verifyRole(['organizer']), async (req, res) => {
   console.log('Updating event ID:', req.params.id);
-  const { name, date, time, description, latitude, longitude } = req.body;
+  const { name, date, time, description, latitude, longitude, venue } = req.body;
 
   if (!latitude || !longitude) {
     return res.status(400).json({ message: 'Latitude and Longitude are required.' });
@@ -104,7 +105,7 @@ router.put('/:id', verifyToken, verifyRole(['organizer']), async (req, res) => {
     event.name = name;
     event.date = date;
     event.time = time;
-    event.location = { lat: latitude, lng: longitude };
+    event.location = { name: venue, lat: latitude, lng: longitude }; // Update venue name
     event.description = description;
 
     const updatedEvent = await event.save();
@@ -216,7 +217,7 @@ router.post('/:id/rsvp', verifyToken, async (req, res) => {
 
     // Send notification to the event organizer
     const notification = new Notification({
-      message: `${user.name} has responded with "${response}" to the event "${event.name}"`,
+      message: `${user.name} has said ${response} to joining you for ${event.name}`,
       userId: event.userId // The organizer's userId
     });
     await notification.save();

@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import './TaskManagement.css';
 import axiosInstance from '../../utils/axiosInstance';
 
-function TaskManagement({ tasks, fetchTasks }) {
+function TaskManagement({ tasks = [], fetchTasks, events = [], users = [] }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [priority, setPriority] = useState('Medium');
   const [status, setStatus] = useState('Not Started');
+  const [eventId, setEventId] = useState('');
+  const [assignedTo, setAssignedTo] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [editTaskId, setEditTaskId] = useState(null);
   const [search, setSearch] = useState('');
@@ -17,7 +18,7 @@ function TaskManagement({ tasks, fetchTasks }) {
   const handleAddTask = async (e) => {
     e.preventDefault();
     try {
-      const newTask = { title, description, dueDate, priority, status };
+      const newTask = { title, description, dueDate, priority, status, eventId, assignedTo };
       if (isEditing) {
         await axiosInstance.put(`/tasks/${editTaskId}`, newTask);
         setIsEditing(false);
@@ -31,6 +32,8 @@ function TaskManagement({ tasks, fetchTasks }) {
       setDueDate('');
       setPriority('Medium');
       setStatus('Not Started');
+      setEventId('');
+      setAssignedTo('');
     } catch (error) {
       console.error('Error adding task:', error);
     }
@@ -44,6 +47,8 @@ function TaskManagement({ tasks, fetchTasks }) {
     setDueDate(task.dueDate.split('T')[0]);
     setPriority(task.priority);
     setStatus(task.status);
+    setEventId(task.eventId);
+    setAssignedTo(task.assignedTo);
   };
 
   const handleDeleteTask = async (taskId) => {
@@ -91,6 +96,24 @@ function TaskManagement({ tasks, fetchTasks }) {
           <option value="In Progress">In Progress</option>
           <option value="Completed">Completed</option>
         </select>
+        <select
+          value={eventId}
+          onChange={(e) => setEventId(e.target.value)}
+        >
+          <option value="">Select Event</option>
+          {events.map(event => (
+            <option key={event._id} value={event._id}>{event.name}</option>
+          ))}
+        </select>
+        <select
+          value={assignedTo}
+          onChange={(e) => setAssignedTo(e.target.value)}
+        >
+          <option value="">Assign To</option>
+          {users.map(user => (
+            <option key={user._id} value={user._id}>{user.name}</option>
+          ))}
+        </select>
         <button type="submit">{isEditing ? 'Update Task' : 'Add Task'}</button>
       </form>
       <div className="filter-section">
@@ -132,6 +155,8 @@ function TaskManagement({ tasks, fetchTasks }) {
                 <p><strong>Due Date:</strong> {new Date(task.dueDate).toLocaleDateString()}</p>
                 <p><strong>Priority:</strong> {task.priority}</p>
                 <p><strong>Status:</strong> {task.status}</p>
+                <p><strong>Event:</strong> {task.eventId.name}</p>
+                <p><strong>Assigned To:</strong> {task.assignedTo.name}</p>
               </div>
               <div className="task-actions">
                 <button className="btn-edit" onClick={() => handleEditTask(task)}>Edit</button>

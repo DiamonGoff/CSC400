@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import './OrganizerInterface.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarPlus, faCalendarAlt, faSearch, faTasks, faList } from '@fortawesome/free-solid-svg-icons';
-import axiosInstance from '../../utils/axiosInstance'; // Ensure the correct path
+import axiosInstance from '../../utils/axiosInstance';
 import { Link, useNavigate } from 'react-router-dom';
 import Select from 'react-select';
 import TaskManagement from './TaskManagement';
@@ -11,7 +11,7 @@ import Map from './Map';
 
 const amenitiesOptions = [
   { value: 'WiFi', label: 'WiFi' },
-  // ... other options
+
 ];
 
 function OrganizerInterface({ user, setUser }) {
@@ -29,21 +29,34 @@ function OrganizerInterface({ user, setUser }) {
   const [tasks, setTasks] = useState([]);
   const [inviteInputs, setInviteInputs] = useState({});
   const [editEventId, setEditEventId] = useState(null);
-  const [editTaskId, setEditTaskId] = useState(null);
-  const [taskTitle, setTaskTitle] = useState('');
-  const [taskDescription, setTaskDescription] = useState('');
-  const [taskDueDate, setTaskDueDate] = useState('');
-  const [taskPriority, setTaskPriority] = useState('Medium');
-  const [taskStatus, setTaskStatus] = useState('Not Started');
   const [mapCenter, setMapCenter] = useState({ lat: 37.7749, lng: -122.4194 });
   const [mapZoom, setMapZoom] = useState(12);
   const [favoriteVenues, setFavoriteVenues] = useState([]);
   const [rsvpList, setRsvpList] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [users, setUsers] = useState([]);
 
   const navigate = useNavigate();
   const userId = localStorage.getItem('userId');
   console.log('userId:', userId); // Debugging line
+
+  const fetchUser = useCallback(async () => {
+    try {
+      const response = await axiosInstance.get(`/users/${userId}`);
+      setUser(response.data);
+    } catch (error) {
+      console.error('There was an error fetching the user!', error);
+    }
+  }, [userId, setUser]);
+
+  const fetchUsers = useCallback(async () => {
+    try {
+      const response = await axiosInstance.get('/users');
+      setUsers(response.data);
+    } catch (error) {
+      console.error('There was an error fetching users!', error);
+    }
+  }, []);
 
   useEffect(() => {
     if (!userId) {
@@ -51,8 +64,9 @@ function OrganizerInterface({ user, setUser }) {
       navigate('/login');
     } else {
       fetchUser();
+      fetchUsers();
     }
-  }, [userId, navigate]);
+  }, [userId, navigate, fetchUser, fetchUsers]);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -68,35 +82,20 @@ function OrganizerInterface({ user, setUser }) {
     }
   }, [userId]);
 
+  const fetchTasks = useCallback(async () => {
+    try {
+      const response = await axiosInstance.get('/tasks');
+      setTasks(response.data);
+    } catch (error) {
+      console.error('There was an error fetching the tasks!', error);
+    }
+  }, []);
+
   useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const response = await axiosInstance.get('/tasks');
-        setTasks(response.data);
-      } catch (error) {
-        console.error('There was an error fetching the tasks!', error);
-      }
-    };
     if (userId) {
       fetchTasks();
     }
-  }, [userId]);
-
-  const fetchUser = useCallback(async () => {
-    try {
-      const response = await axiosInstance.get(`/users/${userId}`);
-      setUser(response.data);
-    } catch (error) {
-      console.error('There was an error fetching the user!', error);
-    }
-  }, [userId, setUser]);
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userId');
-    setUser(null);
-    navigate('/login');
-  };
+  }, [userId, fetchTasks]);
 
   const geocodeLocation = async () => {
     try {
@@ -128,6 +127,7 @@ function OrganizerInterface({ user, setUser }) {
         date: eventDate,
         time: eventTime,
         description: eventDescription,
+        venue: eventLocation, // Save venue name
         latitude: location.lat,
         longitude: location.lng,
         guestList: [],
@@ -172,9 +172,11 @@ function OrganizerInterface({ user, setUser }) {
   const handleEventEdit = (eventId) => {
     setEditEventId(eventId);
     const event = events.find(event => event._id === eventId);
+    const eventDate = new Date(event.date);
+    eventDate.setDate(eventDate.getDate() + 1); // Add one day to the date
     setEventName(event.name);
-    setEventDate(event.date);
-    setEventTime(event.time);
+    setEventDate(eventDate.toISOString().split('T')[0]); // Ensure correct date format (YYYY-MM-DD)
+    setEventTime(convertTo12HourFormat(event.time));
     setEventLocation(event.location.name); // Assuming location is now an object with name, lat, lng
     setEventDescription(event.description);
   };
@@ -193,6 +195,7 @@ function OrganizerInterface({ user, setUser }) {
         date: eventDate,
         time: eventTime,
         description: eventDescription,
+        venue: eventLocation, // Save venue name
         latitude: location.lat,
         longitude: location.lng
       });
@@ -253,57 +256,6 @@ function OrganizerInterface({ user, setUser }) {
     });
   };
 
-  const handleCreateTask = async (e) => {
-    e.preventDefault();
-    try {
-      const newTask = {
-        title: taskTitle,
-        description: taskDescription,
-        dueDate: taskDueDate,
-        priority: taskPriority,
-        status: taskStatus,
-        userId: userId
-      };
-      if (editTaskId) {
-        const response = await axiosInstance.put(`/tasks/${editTaskId}`, newTask);
-        setTasks(tasks.map(task => (task._id === editTaskId ? response.data : task)));
-        setEditTaskId(null);
-      } else {
-        const response = await axiosInstance.post('/tasks', newTask);
-        setTasks([...tasks, response.data]);
-      }
-      setTaskTitle('');
-      setTaskDescription('');
-      setTaskDueDate('');
-      setTaskPriority('Medium');
-      setTaskStatus('Not Started');
-      setMessage('Task created/updated successfully');
-    } catch (error) {
-      console.error('There was an error creating/updating the task!', error);
-      setMessage('There was an error creating/updating the task!');
-    }
-  };
-
-  const handleTaskEdit = (taskId) => {
-    const task = tasks.find(task => task._id === taskId);
-    setTaskTitle(task.title);
-    setTaskDescription(task.description);
-    setTaskDueDate(task.dueDate.split('T')[0]);
-    setTaskPriority(task.priority);
-    setTaskStatus(task.status);
-    setEditTaskId(taskId);
-  };
-
-  const handleTaskDelete = async (taskId) => {
-    try {
-      await axiosInstance.delete(`/tasks/${taskId}`);
-      setTasks(tasks.filter(task => task._id !== taskId));
-    } catch (error) {
-      console.error('There was an error deleting the task!', error);
-      setMessage('There was an error deleting the task!');
-    }
-  };
-
   useEffect(() => {
     const fetchRsvpList = async () => {
       if (events.length > 0) {
@@ -322,6 +274,22 @@ function OrganizerInterface({ user, setUser }) {
     fetchRsvpList();
   }, [events]);
 
+  // Helper function to convert time to 12-hour format with AM/PM
+  const convertTo12HourFormat = (time) => {
+    const [hours, minutes] = time.split(':');
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const adjustedHours = hours % 12 || 12; // Convert 0 to 12 for 12 AM/PM
+    return `${adjustedHours}:${minutes} ${period}`;
+  };
+
+  // Helper function to convert time from 12-hour format to 24-hour format
+  const convertTo24HourFormat = (time) => {
+    const [timePart, period] = time.split(' ');
+    const [hours, minutes] = timePart.split(':');
+    const adjustedHours = period === 'PM' && hours < 12 ? +hours + 12 : period === 'AM' && hours === '12' ? 0 : hours;
+    return `${adjustedHours}:${minutes}`;
+  };
+
   return (
     <div className="organizer-background">
       <div className="container">
@@ -329,14 +297,11 @@ function OrganizerInterface({ user, setUser }) {
           <button className="btn" onClick={() => navigate(`/rsvp-list/${userId}`)}>
             <FontAwesomeIcon icon={faList} /> RSVP List
           </button>
-          <Link to="/organizer/venue-management" className="btn">
-            <FontAwesomeIcon icon={faSearch} /> Venue Management
-          </Link>
-          <Link to="/organizer/task-management" className="btn">
+          <button className="btn" onClick={() => navigate('/event-management')}>
+            <FontAwesomeIcon icon={faSearch} /> Event Management
+          </button>
+          <button className="btn" onClick={() => navigate('/organizer/task-management')}>
             <FontAwesomeIcon icon={faTasks} /> Task Management
-          </Link>
-          <button className="btn" onClick={handleLogout}>
-            Logout
           </button>
         </nav>
 
@@ -363,8 +328,8 @@ function OrganizerInterface({ user, setUser }) {
             <input 
               type="time" 
               placeholder="Time" 
-              value={eventTime} 
-              onChange={(e) => setEventTime(e.target.value)} 
+              value={convertTo24HourFormat(eventTime)} 
+              onChange={(e) => setEventTime(convertTo12HourFormat(e.target.value))} 
               required 
             />
             <select
@@ -395,8 +360,8 @@ function OrganizerInterface({ user, setUser }) {
               <div key={event._id} className="event">
                 <p><strong>Name:</strong> {event.name}</p>
                 <p><strong>Date:</strong> {new Date(event.date).toLocaleDateString()}</p>
-                <p><strong>Time:</strong> {event.time}</p>
-                <p><strong>Location:</strong> {event.location.name}</p>
+                <p><strong>Time:</strong> {convertTo12HourFormat(event.time)}</p>
+                <p><strong>Location:</strong> {event.location ? event.location.name : 'No venue'}</p> {/* Display venue name */}
                 <p><strong>Description:</strong> {event.description}</p>
                 <input 
                   type="text" 
@@ -419,15 +384,6 @@ function OrganizerInterface({ user, setUser }) {
           <form onSubmit={handleVenueSearch}>
             <input type="text" id="autocomplete" placeholder="Location" value={eventLocation} onChange={(e) => setEventLocation(e.target.value)} required />
             <input type="number" placeholder="Capacity" value={capacity} onChange={(e) => setCapacity(e.target.value)} required />
-            <Select
-              isMulti
-              options={amenitiesOptions}
-              className="basic-multi-select"
-              classNamePrefix="select"
-              value={selectedAmenities}
-              onChange={setSelectedAmenities}
-              placeholder="Select the Amenities you'd like"
-            />
             <input type="number" placeholder="Budget" value={budget} onChange={(e) => setBudget(e.target.value)} required />
             <button type="submit" className="btn">Search</button>
           </form>
@@ -443,79 +399,9 @@ function OrganizerInterface({ user, setUser }) {
 
         {/* Task Management Section */}
         <section>
-          <br />
-          <h2><FontAwesomeIcon icon={faTasks} /> {editTaskId ? 'Edit Task' : 'Create New Task'}</h2>
-          {message && <div className="confirmation-message">{message}</div>}
-          <form onSubmit={editTaskId ? handleCreateTask : handleCreateTask}>
-            <input
-              type="text"
-              placeholder="Task Title"
-              value={taskTitle}
-              onChange={(e) => setTaskTitle(e.target.value)}
-              required
-            />
-            <textarea
-              placeholder="Task Description"
-              value={taskDescription}
-              onChange={(e) => setTaskDescription(e.target.value)}
-            />
-            <input
-              type="date"
-              placeholder="Due Date"
-              value={taskDueDate}
-              onChange={(e) => setTaskDueDate(e.target.value)}
-              required
-            />
-            <select
-              value={taskPriority}
-              onChange={(e) => setTaskPriority(e.target.value)}
-            >
-              <option value="High">High</option>
-              <option value="Medium">Medium</option>
-              <option value="Low">Low</option>
-            </select>
-            <select
-              value={taskStatus}
-              onChange={(e) => setTaskStatus(e.target.value)}
-            >
-              <option value="Not Started">Not Started</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Completed">Completed</option>
-            </select>
-            <button type="submit" className="btn">{editTaskId ? 'Update Task' : 'Create Task'}</button>
-          </form>
+          <h2><FontAwesomeIcon icon={faTasks} /> Task Management</h2>
+          <TaskManagement tasks={tasks} fetchTasks={fetchTasks} events={events} users={users} />
         </section>
-
-        {/* Task List Section */}
-        <section>
-          <h2><FontAwesomeIcon icon={faTasks} /> Manage Tasks</h2>
-          <div className="task-list">
-            {tasks.map(task => (
-              <div key={task._id} className="task">
-                <p><strong>Title:</strong> {task.title}</p>
-                <p><strong>Description:</strong> {task.description}</p>
-                <p><strong>Due Date:</strong> {new Date(task.dueDate).toLocaleDateString()}</p>
-                <p><strong>Priority:</strong> {task.priority}</p>
-                <p><strong>Status:</strong> {task.status}</p>
-                <button className="btn" onClick={() => handleTaskEdit(task._id)}>Edit</button>
-                <button className="btn" onClick={() => handleTaskDelete(task._id)}>Delete</button>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* RSVP List Section */}
-        {selectedEvent && (
-          <section>
-            <h3>RSVP List for Event</h3>
-            <ul>
-              {rsvpList.map((rsvp) => (
-                <li key={rsvp.attendeeId}>{rsvp.attendeeName} ({rsvp.attendeeEmail})</li>
-              ))}
-            </ul>
-          </section>
-        )}
-
         <footer>
           &copy; 2024 EventConnect. All rights reserved.
         </footer>

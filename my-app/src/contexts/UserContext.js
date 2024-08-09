@@ -25,7 +25,7 @@ export const UserProvider = ({ children }) => {
               fetchUser(); // Retry fetching the user with the new token
             } catch (refreshError) {
               console.error('Error refreshing token:', refreshError);
-              // Handle token refresh failure (e.g., redirect to login)
+              // Handle token refresh failure (redirect to login)
             }
           } else {
             console.error('Error fetching user:', error);

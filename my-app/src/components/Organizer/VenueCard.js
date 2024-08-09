@@ -7,7 +7,7 @@ const VenueCard = ({ venue, onFavoriteChange }) => {
   const [isFavorite, setIsFavorite] = useState(venue.isFavorite);
 
   useEffect(() => {
-    setIsFavorite(venue.isFavorite); // Ensure the favorite state is in sync with the prop
+    setIsFavorite(venue.isFavorite);
   }, [venue]);
 
   const handleFavoriteClick = async () => {
@@ -52,8 +52,6 @@ const VenueCard = ({ venue, onFavoriteChange }) => {
       <h3>{venue.name}</h3>
       <p><strong>Address:</strong> {venue.address || 'N/A'}</p>
       <p><strong>Capacity:</strong> {venue.capacity || 'N/A'}</p>
-      <p><strong>Amenities:</strong> {Array.isArray(venue.amenities) ? venue.amenities.join(', ') : 'N/A'}</p>
-      <p><strong>Price:</strong> {venue.price || 'N/A'}</p>
       <p><strong>Phone:</strong> {venue.phone || 'N/A'}</p>
       <p><strong>Website:</strong> <a href={venue.website || '#'} target="_blank" rel="noopener noreferrer">{venue.website || 'N/A'}</a></p>
 

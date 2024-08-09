@@ -13,6 +13,8 @@ import AttendeeEventSelection from './components/Attendee/AttendeeEventSelection
 import Dashboard from './components/Dashboard'; // Ensure correct import
 import RsvpList from './components/RsvpList'; // Ensure correct import
 import axiosInstance from './axiosInstance';
+import TaskManagementPage from './components/Organizer/TaskManagementPage';
+import EventManagement from './components/Organizer/EventManagement';
 import './App.css';
 
 async function fetchRSVPList(userId) {
@@ -74,7 +76,10 @@ function App() {
           <Route path="/attendee" element={<AttendeeEventSelection events={events} />} /> {/* EventSelection route */}
           <Route path="/attendee/:eventId" element={<AttendeeInterface />} /> {/* AttendeeInterface route */}
           <Route path="/register" element={<Register />} />
+          <Route path="/organizer-interface" element={<OrganizerInterface />} />
+          <Route path="/event-management" element={<EventManagement />} />
           <Route path="/dashboard" element={<Dashboard />} /> {/* Dashboard route */}
+          <Route path="/organizer/task-management" element={<TaskManagementPage />} /> {/* New Route */}
           <Route path="/rsvp-list/:userId" element={<RsvpList fetchRSVPList={fetchRSVPList} />} /> {/* RSVP List route */}
           <Route path="/" element={
             <>
